@@ -22,11 +22,7 @@
       class="q-mt-md"
     />
 
-    <!-- Show selected channel type -->
-    <div class="q-mt-md">
-      Selected channel type: <strong>{{ selectedChannelTypeLabel }}</strong>
-    </div>
-
+   
     <!-- Error message -->
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
@@ -40,7 +36,7 @@ export default {
   data() {
     return {
       channelName: '',
-      channelType: '', // Default to public
+      channelType: 'Public', // Default to public
       channelTypes: [
         { label: 'Public', value: 'Public' },
         { label: 'Private', value: 'Private' }
@@ -55,13 +51,7 @@ export default {
       errorMessage: ''
     };
   },
-  computed: {
-    selectedChannelTypeLabel() {
-      // Get the label for the selected channel type
-      const selected = this.channelTypes.find(type => type.value === this.channelType);
-      return selected ? selected.label : 'NONE';
-    }
-  },
+
   methods: {
     submitForm() {
       console.log('Channel type on submit:', this.selectedChannelTypeLabel); // Log the selected channel type label
@@ -74,7 +64,7 @@ export default {
       }
 
       // Determine the icon based on the channel type
-      const channelIcon = this.channelType === 'Private' ? 'lock' : 'tag';
+      const channelIcon = this.channelType === 'Public' ? 'tag' : 'lock';
 
       // Emit the new channel data to the parent component
       this.$emit('submit', {
