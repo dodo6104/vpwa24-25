@@ -45,11 +45,11 @@
       </div>
 
       <q-separator />
-      <q-btn-dropdown anchor="top">
+      <q-btn-dropdown anchor="top" ref="statusdropdown">
         <template v-slot:label>
           <div class="flex justify-between items-center q-border full-width">
             <div class="flex items-center">
-              <q-icon name="circle" :color="statusColor" size="sd" class="q-ml-md"></q-icon>
+              <q-icon name="circle" :color="statusColor" size="xs" class="q-ml-md"></q-icon>
               <div class="q-ml-xs q-pa-xs text-left">
                 <strong>{{ userName }}</strong>
                 <div class="text-grey text-caption">{{ status }}</div>
@@ -67,7 +67,7 @@
           </q-item>
           <q-item clickable @click="setStatus('Offline')">
             <q-item-section avatar>
-              <q-icon class="q-ml-md" name="circle" color="grey" size="xs"/>
+              <q-icon class="q-ml-md" name="circle" color="black" size="xs"/>
             </q-item-section>
             <q-item-section>Offline</q-item-section>
           </q-item>
@@ -102,10 +102,11 @@ export default {
     },
     setStatus(value) {
       this.status = value;
+      this.$refs.statusdropdown.hide();
       if (value === 'Online') {
       this.statusColor = 'green'
     } else {
-      this.statusColor = 'grey'
+      this.statusColor = 'black'
     }
 
     }
