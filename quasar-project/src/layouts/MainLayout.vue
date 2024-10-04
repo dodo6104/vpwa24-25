@@ -34,6 +34,7 @@
 </template>
 
 
+
 <script>
 import AppSidebar from 'components/AppSidebar.vue';
 import CommandLine from 'components/CommandLine.vue';
@@ -77,7 +78,8 @@ export default {
             stamp: 'just now',
             sent: true,
             bgColor: 'amber-7'
-          }, {
+          },
+          {
             name: 'Sam',
             avatar: '',
             text: ['This is Channel 2 conversation.'],
@@ -132,9 +134,6 @@ export default {
   }
 };
 </script>
-
-
-
 <style scoped>
 .full-height-layout {
   height: 100vh;

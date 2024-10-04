@@ -85,8 +85,12 @@ export default {
   },
   methods: {
     goTo(channel) {
-    this.$emit('switch-channel', channel); // Emit the selected channel
-    },
+    // Emit the channel to notify the parent component
+    this.$emit('switch-channel', channel);
+
+    // Navigate to the selected channel's route using Vue Router
+    this.$router.push(`/${channel.route}`);
+  },
     updateLeftDrawer(value) {
       this.$emit('update:leftDrawerOpen', value); // Emitne udalosť na aktualizáciu hodnoty
     },
