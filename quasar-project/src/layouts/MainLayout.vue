@@ -1,39 +1,38 @@
 <template>
   <q-layout view="hHh LpR fFf" class="full-height-layout">
-    <!-- Hlavička -->
+    <!-- Header -->
     <q-header elevated>
       <q-toolbar>
-        <!-- Skry tento button na veľkých obrazovkách -->
+        <!-- Show menu button on small screens -->
         <q-btn v-if="isSmallScreen" flat dense round icon="menu" @click="leftDrawerOpen = !leftDrawerOpen" />
-        <q-toolbar-title>
-          Fake Slack
-        </q-toolbar-title>
+        <q-toolbar-title>Fake Slack</q-toolbar-title>
       </q-toolbar>
     </q-header>
 
-    <!-- Bočný panel (Sidebar) -->
+    <!-- Sidebar -->
     <AppSidebar
       :leftDrawerOpen="leftDrawerOpen"
       @update:leftDrawerOpen="leftDrawerOpen = $event"
       @switch-channel="handleChannelSwitch" />
 
-    <!-- Hlavná obsahová časť -->
+    <!-- Main Content -->
     <q-page-container class="no-scroll main-content">
-      <!-- Sekcia pre kanál (Channel) -->
+      <!-- Channel Section (Displays the messages) -->
       <div class="channel-section">
-        <ChatWindow :messages="messages" />
+        <ChatWindow
+          :messages="messages"
+          :loadMoreMessages="loadMoreMessages"
+        />
       </div>
 
-      <!-- Komponent CommandLine -->
+      <!-- CommandLine Component (for sending messages) -->
       <CommandLine @send-message="handleSendMessage" class="commandline" />
     </q-page-container>
 
-    <!-- Observer na veľkosť okna -->
+    <!-- Resize Observer for responsiveness -->
     <q-resize-observer @resize="onResize" />
   </q-layout>
 </template>
-
-
 
 <script>
 import AppSidebar from 'components/AppSidebar.vue';
@@ -50,7 +49,7 @@ export default {
     return {
       leftDrawerOpen: true,
       isSmallScreen: false,
-      currentChannelId: 1, // Track the current channel
+      currentChannelId: 0, // Track the current channel
       channelMessages: { // Store messages for each channel
         1: [
           {
@@ -86,17 +85,65 @@ export default {
             stamp: '3 minutes ago',
             bgColor: 'primary',
             textColor: 'white'
+          },
+          {
+            name: 'me',
+            avatar: '',
+            text: ['Welcome to Channel 2!'],
+            stamp: 'just now',
+            sent: true,
+            bgColor: 'amber-7'
+          },
+          {
+            name: 'Sam',
+            avatar: '',
+            text: ['This is Channel 2 conversation.'],
+            stamp: '3 minutes ago',
+            bgColor: 'primary',
+            textColor: 'white'
+          },
+          {
+            name: 'me',
+            avatar: '',
+            text: ['Welcome to Channel 2!'],
+            stamp: 'just now',
+            sent: true,
+            bgColor: 'amber-7'
+          },
+          {
+            name: 'Sam',
+            avatar: '',
+            text: ['This is Channel 2 conversation.'],
+            stamp: '3 minutes ago',
+            bgColor: 'primary',
+            textColor: 'white'
+          },
+          {
+            name: 'me',
+            avatar: '',
+            text: ['Welcome to Channel 2!'],
+            stamp: 'just now',
+            sent: true,
+            bgColor: 'amber-7'
+          },
+          {
+            name: 'Sam',
+            avatar: '',
+            text: ['This is Channel 2 conversation.'],
+            stamp: '3 minutes ago',
+            bgColor: 'primary',
+            textColor: 'white'
           }
         ]
       }
     };
   },
   computed: {
-    messages() {
-      // Return the messages for the current channel
-      return this.channelMessages[this.currentChannelId] || [];
-    }
-  },
+  messages() {
+    return this.currentChannelId === 0 ? [] : this.channelMessages[this.currentChannelId] || [];
+  }
+},
+
   methods: {
     onResize({ width }) {
       if (width < 768) {
@@ -108,7 +155,7 @@ export default {
       }
     },
     handleSendMessage(message) {
-      // Push the new message to the current channel's messages
+
       const newMessage = {
         name: 'me',
         avatar: '',
@@ -125,15 +172,57 @@ export default {
       this.channelMessages[this.currentChannelId].push(newMessage);
     },
     handleChannelSwitch(channel) {
-      // Switch to the selected channel
-      this.currentChannelId = channel.id;
+    this.currentChannelId = channel.id;
+  },
+  async loadMoreMessages() {
+
+// Check if the current channel is valid
+if (this.currentChannelId === 0) {
+  return Promise.resolve([]); // Return an empty array if no channel is selected
+}
+
+return new Promise((resolve) => {
+  setTimeout(() => {
+    const olderMessages = [
+      {
+        name: 'me',
+        avatar: '',
+        text: ['Simulating loading1'],
+        stamp: '10 minutes ago',
+        sent: true,
+        bgColor: 'amber-7'
+      },
+      {
+        name: 'Sam',
+        avatar: '',
+        text: ['loading 2'],
+        stamp: '3 minutes ago',
+        bgColor: 'primary',
+        textColor: 'white'
+      }
+    ];
+
+    // Ensure that the channel is still valid before prepending messages
+    if (this.currentChannelId !== 0) {
+      // Prepend the older messages to the current channel's messages
+      this.channelMessages[this.currentChannelId] = [
+        ...olderMessages,
+        ...this.channelMessages[this.currentChannelId]
+      ];
     }
+
+    resolve(olderMessages);
+  }, 1000);
+});
+}
+
   },
   mounted() {
     this.onResize({ width: window.innerWidth });
   }
 };
 </script>
+
 <style scoped>
 .full-height-layout {
   height: 100vh;

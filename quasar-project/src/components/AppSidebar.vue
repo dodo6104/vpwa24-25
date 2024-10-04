@@ -66,7 +66,7 @@
 
 <script>
 export default {
-  data () {
+  data() {
     return {
       userName: 'dodo6104',
       status: 'online',
@@ -74,8 +74,9 @@ export default {
       channels: [
         { id: 1, name: 'Channel 1', route: 'chat/channel1', icon: 'lock' },
         { id: 2, name: 'Channel 2', route: 'chat/channel2', icon: 'tag' }
-      ]
-    }
+      ],
+      selectedChannel: null // Track selected channel
+    };
   },
   props: {
     leftDrawerOpen: {
@@ -83,30 +84,45 @@ export default {
       required: true
     }
   },
+  created() {
+    // Set default route when no channel is selected
+    if (!this.selectedChannel) {
+      this.$router.push('/');
+    }
+  },
   methods: {
     goTo(channel) {
-    // Emit the channel to notify the parent component
-    this.$emit('switch-channel', channel);
+      // Set the selected channel and emit the change
+      this.selectedChannel = channel;
+      this.$emit('switch-channel', channel);
 
-    // Navigate to the selected channel's route using Vue Router
-    this.$router.push(`/${channel.route}`);
-  },
+      // Navigate to the selected channel's route using Vue Router
+      this.$router.push(`/${channel.route}`);
+    },
     updateLeftDrawer(value) {
-      this.$emit('update:leftDrawerOpen', value); // Emitne udalosť na aktualizáciu hodnoty
+      this.$emit('update:leftDrawerOpen', value); // Emit event to update the drawer value
     },
     setStatus(value) {
       this.status = value;
       this.$refs.statusdropdown.hide();
-      if (value === 'Online') {
-      this.statusColor = 'green'
-    } else {
-      this.statusColor = 'black'
-    }
-
+      this.statusColor = value === 'Online' ? 'green' : 'black';
     },
     deleteChannel(id) {
-      this.channels = this.channels.filter(channel => channel.id !== id);
-    }
+  // Remove the channel from the list
+  this.channels = this.channels.filter(channel => channel.id !== id);
+
+  // Reset the selected channel and update the main layout
+  this.selectedChannel = null;
+  this.$emit('switch-channel', { id: 0 }); // Emit a channel with id 0 for no selected channel
+
+  // Set loading flag to false
+  this.loadingOlderMessages = false;
+
+  this.$router.push('/'); // Redirect to default route
+}
+
+
   }
 };
 </script>
+
