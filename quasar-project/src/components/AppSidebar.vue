@@ -16,27 +16,16 @@
           </q-item>
           <q-separator />
 
-          <q-item clickable v-ripple @click="goTo('chat/general')">
-            <q-item-section class="col-15">
-              <span>
-                &nbsp;&nbsp;&nbsp;<q-icon name="lock" size="sm"/>&nbsp;&nbsp;&nbsp; Channel 1
-              </span>
-            </q-item-section>
-            <q-item-section class="col-1">
-              <q-icon name="delete" size="xs" @click.stop="deleteChannel('chat/general')" />
-            </q-item-section>
-          </q-item>
+             <!-- Dynamically render channels -->
+             <q-item v-for="channel in channels" :key="channel.id" clickable v-ripple @click="goTo(channel)">
+  <q-item-section class="col-15">
+    <span>&nbsp;&nbsp;&nbsp;<q-icon :name="channel.icon" size="sm"/>&nbsp;&nbsp;&nbsp;{{ channel.name }}</span>
+  </q-item-section>
+  <q-item-section class="col-1">
+    <q-icon name="delete" size="xs" @click.stop="deleteChannel(channel.id)" />
+  </q-item-section>
+</q-item>
 
-          <q-item clickable v-ripple @click="goTo('chat/general')">
-            <q-item-section class="col-15">
-              <span>
-                &nbsp;&nbsp;&nbsp;<q-icon name="tag" size="sm"/>&nbsp;&nbsp;&nbsp; Channel 1
-              </span>
-            </q-item-section>
-            <q-item-section class="col-1">
-              <q-icon name="delete" size="xs" @click.stop="deleteChannel('chat/general')" />
-            </q-item-section>
-          </q-item>
 
         </q-list>
       </div>
@@ -81,7 +70,11 @@ export default {
     return {
       userName: 'dodo6104',
       status: 'online',
-      statusColor: 'green'
+      statusColor: 'green',
+      channels: [
+        { id: 1, name: 'Channel 1', route: 'chat/channel1', icon: 'lock' },
+        { id: 2, name: 'Channel 2', route: 'chat/channel2', icon: 'tag' }
+      ]
     }
   },
   props: {
@@ -91,8 +84,8 @@ export default {
     }
   },
   methods: {
-    goTo(route) {
-      this.$router.push(`/${route}`);
+    goTo(channel) {
+    this.$emit('switch-channel', channel); // Emit the selected channel
     },
     updateLeftDrawer(value) {
       this.$emit('update:leftDrawerOpen', value); // Emitne udalosť na aktualizáciu hodnoty
@@ -106,6 +99,9 @@ export default {
       this.statusColor = 'black'
     }
 
+    },
+    deleteChannel(id) {
+      this.channels = this.channels.filter(channel => channel.id !== id);
     }
   }
 };

@@ -12,7 +12,10 @@
     </q-header>
 
     <!-- Bočný panel (Sidebar) -->
-    <AppSidebar :leftDrawerOpen="leftDrawerOpen" @update:leftDrawerOpen="leftDrawerOpen = $event" />
+    <AppSidebar
+      :leftDrawerOpen="leftDrawerOpen"
+      @update:leftDrawerOpen="leftDrawerOpen = $event"
+      @switch-channel="handleChannelSwitch" />
 
     <!-- Hlavná obsahová časť -->
     <q-page-container class="no-scroll main-content">
@@ -30,6 +33,7 @@
   </q-layout>
 </template>
 
+
 <script>
 import AppSidebar from 'components/AppSidebar.vue';
 import CommandLine from 'components/CommandLine.vue';
@@ -45,28 +49,51 @@ export default {
     return {
       leftDrawerOpen: true,
       isSmallScreen: false,
-      messages: [
-        {
-          name: 'me',
-          avatar: '',
-          text: ['hey, how are you?'],
-          stamp: '7 minutes ago',
-          sent: true,
-          bgColor: 'amber-7'
-        },
-        {
-          name: 'Aelx',
-          avatar: '',
-          text: [
-            'i haate it'
-          ],
-          stamp: '4 minutes ago',
-          bgColor: 'primary',
-          textColor: 'white'
-        },
-
-      ]
+      currentChannelId: 1, // Track the current channel
+      channelMessages: { // Store messages for each channel
+        1: [
+          {
+            name: 'me',
+            avatar: '',
+            text: ['Welcome to Channel 1!'],
+            stamp: 'just now',
+            sent: true,
+            bgColor: 'amber-7'
+          },
+          {
+            name: 'Alex',
+            avatar: '',
+            text: ['This is Channel 1 conversation.'],
+            stamp: '5 minutes ago',
+            bgColor: 'primary',
+            textColor: 'white'
+          }
+        ],
+        2: [
+          {
+            name: 'me',
+            avatar: '',
+            text: ['Welcome to Channel 2!'],
+            stamp: 'just now',
+            sent: true,
+            bgColor: 'amber-7'
+          }, {
+            name: 'Sam',
+            avatar: '',
+            text: ['This is Channel 2 conversation.'],
+            stamp: '3 minutes ago',
+            bgColor: 'primary',
+            textColor: 'white'
+          }
+        ]
+      }
     };
+  },
+  computed: {
+    messages() {
+      // Return the messages for the current channel
+      return this.channelMessages[this.currentChannelId] || [];
+    }
   },
   methods: {
     onResize({ width }) {
@@ -79,24 +106,34 @@ export default {
       }
     },
     handleSendMessage(message) {
-      this.messages.push({
+      // Push the new message to the current channel's messages
+      const newMessage = {
         name: 'me',
         avatar: '',
         text: [message],
         stamp: 'just now',
         sent: true,
         bgColor: 'amber-7'
+      };
 
-      });
-      
+      if (!this.channelMessages[this.currentChannelId]) {
+        this.$set(this.channelMessages, this.currentChannelId, []);
+      }
+
+      this.channelMessages[this.currentChannelId].push(newMessage);
+    },
+    handleChannelSwitch(channel) {
+      // Switch to the selected channel
+      this.currentChannelId = channel.id;
     }
-
   },
   mounted() {
     this.onResize({ width: window.innerWidth });
   }
 };
 </script>
+
+
 
 <style scoped>
 .full-height-layout {
