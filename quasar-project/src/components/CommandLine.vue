@@ -6,6 +6,7 @@
       placeholder="Type command or message"
       @keyup.enter="sendMessage"
       dense
+      
       outlined
       clearable
     >

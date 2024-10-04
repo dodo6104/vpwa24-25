@@ -174,46 +174,46 @@ export default {
     handleChannelSwitch(channel) {
     this.currentChannelId = channel.id;
   },
-  async loadMoreMessages() {
+    async loadMoreMessages() {
 
-// Check if the current channel is valid
-if (this.currentChannelId === 0) {
-  return Promise.resolve([]); // Return an empty array if no channel is selected
-}
+  // Check if the current channel is valid
+  if (this.currentChannelId === 0) {
+    return Promise.resolve([]); // Return an empty array if no channel is selected
+  }
 
-return new Promise((resolve) => {
-  setTimeout(() => {
-    const olderMessages = [
-      {
-        name: 'me',
-        avatar: '',
-        text: ['Simulating loading1'],
-        stamp: '10 minutes ago',
-        sent: true,
-        bgColor: 'amber-7'
-      },
-      {
-        name: 'Sam',
-        avatar: '',
-        text: ['loading 2'],
-        stamp: '3 minutes ago',
-        bgColor: 'primary',
-        textColor: 'white'
-      }
-    ];
-
-    // Ensure that the channel is still valid before prepending messages
-    if (this.currentChannelId !== 0) {
-      // Prepend the older messages to the current channel's messages
-      this.channelMessages[this.currentChannelId] = [
-        ...olderMessages,
-        ...this.channelMessages[this.currentChannelId]
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const olderMessages = [
+        {
+          name: 'me',
+          avatar: '',
+          text: ['Simulating loading1'],
+          stamp: '10 minutes ago',
+          sent: true,
+          bgColor: 'amber-7'
+        },
+        {
+          name: 'Sam',
+          avatar: '',
+          text: ['loading 2'],
+          stamp: '3 minutes ago',
+          bgColor: 'primary',
+          textColor: 'white'
+        }
       ];
-    }
 
-    resolve(olderMessages);
-  }, 1000);
-});
+      // Ensure that the channel is still valid before prepending messages
+      if (this.currentChannelId !== 0) {
+        // Prepend the older messages to the current channel's messages
+        this.channelMessages[this.currentChannelId] = [
+          ...olderMessages,
+          ...this.channelMessages[this.currentChannelId]
+        ];
+      }
+
+      resolve(olderMessages);
+    }, 1000);
+  });
 }
 
   },
