@@ -16,31 +16,28 @@
           </q-item>
           <q-separator />
 
-          <!-- Pridanie viac kanálov na demonštráciu scrollovania -->
           <q-item clickable v-ripple @click="goTo('chat/general')">
-            <q-item-section>
-              &nbsp;&nbsp;&nbsp;# &nbsp;&nbsp;&nbsp;Channel 1
+            <q-item-section class="col-15">
+              <span>
+                &nbsp;&nbsp;&nbsp;<q-icon name="lock" size="sm"/>&nbsp;&nbsp;&nbsp; Channel 1
+              </span>
+            </q-item-section>
+            <q-item-section class="col-1">
+              <q-icon name="delete" size="xs" @click.stop="deleteChannel('chat/general')" />
             </q-item-section>
           </q-item>
 
           <q-item clickable v-ripple @click="goTo('chat/general')">
-            <q-item-section>
-              &nbsp;&nbsp;&nbsp;# &nbsp;&nbsp;&nbsp;Channel 2
+            <q-item-section class="col-15">
+              <span>
+                &nbsp;&nbsp;&nbsp;<q-icon name="tag" size="sm"/>&nbsp;&nbsp;&nbsp; Channel 1
+              </span>
+            </q-item-section>
+            <q-item-section class="col-1">
+              <q-icon name="delete" size="xs" @click.stop="deleteChannel('chat/general')" />
             </q-item-section>
           </q-item>
 
-          <q-item clickable v-ripple @click="goTo('chat/general')">
-            <q-item-section>
-              &nbsp;&nbsp;&nbsp;# &nbsp;&nbsp;&nbsp;Channel 3
-            </q-item-section>
-          </q-item>
-
-          <!-- Viac kanálov na ukážku scrollovania -->
-          <q-item v-for="n in 20" :key="n" clickable v-ripple @click="goTo('chat/general')">
-            <q-item-section>
-              &nbsp;&nbsp;&nbsp;# &nbsp;&nbsp;&nbsp;Channel {{ n + 3 }}
-            </q-item-section>
-          </q-item>
         </q-list>
       </div>
 
