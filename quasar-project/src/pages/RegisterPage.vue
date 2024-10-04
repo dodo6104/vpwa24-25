@@ -1,6 +1,6 @@
 <template>
-  <q-page class="flex flex-center">
-    <q-card class="q-pa-md panel" style="max-width: 600px;">
+  <q-page class="flex flex-center" :style="pageStyle">
+    <q-card class="q-pa-md panel" :style="cardStyle">
       <!-- Logo and App Name -->
       <q-card-section class="logo_text">
         <div class="logo-container">
@@ -11,7 +11,7 @@
 
       <!-- Registration Form -->
       <q-form @submit.prevent="onSubmit">
-        <q-card-section class="flex flex-center q-gutter-lg">
+        <q-card-section class="flex flex-center q-gutter-lg form-holder">
           <!-- First Column (Email, Name, Surname) -->
           <q-col class="jedna">
             <q-input
@@ -20,7 +20,7 @@
               v-model="email"
               label="E-mail"
               type="text"
-              class="q-mt-md q-mb-lg"
+              class="q-mt-sm q-mb-md"
               :error="emailError"
               :error-message="emailErrorMessage"
             />
@@ -30,7 +30,7 @@
               v-model="name"
               label="Name"
               type="text"
-              class="q-mt-md q-mb-lg"
+              class="q-mt-sm q-mb-md"
               :error="nameError"
               :error-message="nameErrorMessage"
             />
@@ -40,7 +40,7 @@
               v-model="surname"
               label="Surname"
               type="text"
-              class="q-mt-md q-mb-lg"
+              class="q-mt-sm q-mb-md"
               :error="surnameError"
               :error-message="surnameErrorMessage"
             />
@@ -54,7 +54,7 @@
               v-model="nickname"
               label="Nickname"
               type="text"
-              class="q-mt-md q-mb-lg"
+              class="q-mt-sm q-mb-md"
               :error="nicknameError"
               :error-message="nicknameErrorMessage"
             />
@@ -64,7 +64,7 @@
               v-model="password"
               label="Password"
               type="password"
-              class="q-mt-md q-mb-lg"
+              class="q-mt-sm q-mb-md"
               :error="passwordError"
               :error-message="passwordErrorMessage"
             />
@@ -74,7 +74,7 @@
               v-model="confirmPassword"
               label="Confirm Password"
               type="password"
-              class="q-mt-md q-mb-lg"
+              class="q-mt-sm q-mb-md"
               :error="confirmPasswordError"
               :error-message="confirmPasswordErrorMessage"
             />
@@ -105,7 +105,6 @@
     </q-card>
   </q-page>
 </template>
-
 <script>
 export default {
   data() {
@@ -144,7 +143,7 @@ export default {
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return emailPattern.test(email);
     },
-    // Reset all error messages
+
     resetErrors() {
       this.emailError = this.nameError = this.surnameError = this.nicknameError = this.passwordError = this.confirmPasswordError = false;
       this.emailErrorMessage = this.nameErrorMessage = this.surnameErrorMessage = this.nicknameErrorMessage = this.passwordErrorMessage = this.confirmPasswordErrorMessage = '';
@@ -213,19 +212,19 @@ export default {
 .logo-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 .logo {
-  max-width: 80px;
+  max-width: 60px;
 }
 .logo_text {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 .form_holder {
-  margin-top: 20px;
+  margin-top: 10px;
 }
 .text-negative {
   color: red;
@@ -234,5 +233,22 @@ export default {
 .text-positive {
   color: green;
   text-align: center;
+}
+
+@media only screen and (max-width: 466px) {
+  .q-card {
+    padding: 8px;
+  }
+  .q-mt-sm, .q-mb-md {
+    margin-top: 1px;
+    margin-bottom: 1px;
+    padding: 5px;
+  }
+  .logo {
+    max-width: 50px;
+  }
+  .text-h6 {
+    font-size: 1rem;
+  }
 }
 </style>

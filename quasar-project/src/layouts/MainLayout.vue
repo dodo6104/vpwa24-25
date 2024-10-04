@@ -18,11 +18,11 @@
     <q-page-container class="no-scroll main-content">
       <!-- Sekcia pre kanál (Channel) -->
       <div class="channel-section">
-        <router-view />
+        <ChatWindow :messages="messages" />
       </div>
 
       <!-- Komponent CommandLine -->
-      <CommandLine class="commandline" />
+      <CommandLine @send-message="handleSendMessage" class="commandline" />
     </q-page-container>
 
     <!-- Observer na veľkosť okna -->
@@ -32,33 +32,67 @@
 
 <script>
 import AppSidebar from 'components/AppSidebar.vue';
-import CommandLine from 'components/CommandLine.vue'; // Import CommandLine komponentu
+import CommandLine from 'components/CommandLine.vue';
+import ChatWindow from 'components/ChatWindow.vue';
 
 export default {
   components: {
     AppSidebar,
-    CommandLine
+    CommandLine,
+    ChatWindow
   },
   data() {
     return {
-      leftDrawerOpen: true, // Základný stav - bočný panel je otvorený
-      isSmallScreen: false, // Premenná na kontrolu veľkosti obrazovky
+      leftDrawerOpen: true,
+      isSmallScreen: false,
+      messages: [
+        {
+          name: 'me',
+          avatar: '',
+          text: ['hey, how are you?'],
+          stamp: '7 minutes ago',
+          sent: true,
+          bgColor: 'amber-7'
+        },
+        {
+          name: 'Aelx',
+          avatar: '',
+          text: [
+            'i haate it'
+          ],
+          stamp: '4 minutes ago',
+          bgColor: 'primary',
+          textColor: 'white'
+        },
+
+      ]
     };
   },
   methods: {
     onResize({ width }) {
-      // Ak je šírka menšia ako 768px, povol otváranie/zatváranie bočného panelu
       if (width < 768) {
         this.isSmallScreen = true;
-        this.leftDrawerOpen = false; // Automaticky zatvor panel pri malej obrazovke
+        this.leftDrawerOpen = false;
       } else {
         this.isSmallScreen = false;
-        this.leftDrawerOpen = true; // Neumožni zatváranie panelu pri väčších obrazovkách
+        this.leftDrawerOpen = true;
       }
+    },
+    handleSendMessage(message) {
+      this.messages.push({
+        name: 'me',
+        avatar: '',
+        text: [message],
+        stamp: 'just now',
+        sent: true,
+        bgColor: 'amber-7'
+
+      });
+      
     }
+
   },
   mounted() {
-    // Nastav úvodný stav podľa aktuálnej šírky obrazovky
     this.onResize({ width: window.innerWidth });
   }
 };

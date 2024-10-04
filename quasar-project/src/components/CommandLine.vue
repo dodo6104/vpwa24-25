@@ -1,10 +1,24 @@
+
 <template>
-  <div class="commandline">
+  <div class="commandline-wrapper">
     <q-input
-      v-model="command"
-      filled
-      placeholder="Zadajte príkaz alebo správu..."
-    />
+      v-model="message"
+      placeholder="Type command or message"
+      @keyup.enter="sendMessage"
+      dense
+      outlined
+      clearable
+    >
+      <template v-slot:append>
+        <q-btn
+          icon="send"
+          flat
+          dense
+          @click="sendMessage"
+          :disable="!message"
+        />
+      </template>
+    </q-input>
   </div>
 </template>
 
@@ -12,16 +26,22 @@
 export default {
   data() {
     return {
-      command: '' // Uchováva text, ktorý používateľ píše
+      message: '', // Holds the message being typed
     };
+  },
+  methods: {
+    sendMessage() {
+      if (this.message.trim()) {
+        // Emit the message to parent (MainLayout)
+        this.$emit('send-message', this.message);
+        this.message = ''; // Clear the input after sending
+      }
+    }
   }
 };
 </script>
 
 <style scoped>
-.commandline {
-  background-color: #f5f5f5;
-  padding: 10px;
-  border-top: 1px solid #ccc;
-}
+
 </style>
+

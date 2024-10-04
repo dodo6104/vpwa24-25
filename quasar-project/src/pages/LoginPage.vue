@@ -113,7 +113,7 @@ export default {
       if (!this.emailError && !this.passwordError) {
         this.formMessage = 'Login successful!';
         this.$nextTick(() => {
-          this.$router.push('/');  
+          this.$router.push('/');
         });
 
       } else {
@@ -149,4 +149,5 @@ export default {
   text-align: center;
   margin-top: 10px;
 }
+
 </style>
