@@ -45,37 +45,31 @@
       </div>
 
       <q-separator />
-      <q-btn-dropdown v-model="status">
+      <q-btn-dropdown anchor="top">
         <template v-slot:label>
           <div class="flex justify-between items-center q-border full-width">
             <div class="flex items-center">
-              <q-icon :name="statusIcon" :color="statusColor" size="sd" class="q-ml-md"></q-icon>
-              <div class="q-ml-md">
-                <strong>Meno</strong>
+              <q-icon name="circle" :color="statusColor" size="sd" class="q-ml-md"></q-icon>
+              <div class="q-ml-xs q-pa-xs text-left">
+                <strong>{{ userName }}</strong>
                 <div class="text-grey text-caption">{{ status }}</div>
               </div>
+
             </div>
           </div>
         </template>
-
         <q-list>
           <q-item clickable @click="setStatus('Online')">
             <q-item-section avatar>
-              <q-icon name="circle" color="green" />
+              <q-icon class="q-ml-md" name="circle" color="green" size="xs"/>
             </q-item-section>
             <q-item-section>Online</q-item-section>
           </q-item>
           <q-item clickable @click="setStatus('Offline')">
             <q-item-section avatar>
-              <q-icon name="circle" color="grey" />
+              <q-icon class="q-ml-md" name="circle" color="grey" size="xs"/>
             </q-item-section>
             <q-item-section>Offline</q-item-section>
-          </q-item>
-          <q-item clickable @click="setStatus('Invisible')">
-            <q-item-section avatar>
-              <q-icon name="circle" color="black" />
-            </q-item-section>
-            <q-item-section>Invisible</q-item-section>
           </q-item>
         </q-list>
       </q-btn-dropdown>
@@ -86,31 +80,17 @@
 
 <script>
 export default {
+  data () {
+    return {
+      userName: 'dodo6104',
+      status: 'online',
+      statusColor: 'green'
+    }
+  },
   props: {
     leftDrawerOpen: {
       type: Boolean,
       required: true
-    }
-  },
-  data() {
-    return {
-      status: 'Online', // Predvolený stav
-    };
-  },
-  computed: {
-    statusIcon() {
-      return this.status === 'Online'
-        ? 'circle'
-        : this.status === 'Offline'
-        ? 'circle'
-        : 'circle';
-    },
-    statusColor() {
-      return this.status === 'Online'
-        ? 'green'
-        : this.status === 'Offline'
-        ? 'grey'
-        : 'black';
     }
   },
   methods: {
@@ -120,8 +100,14 @@ export default {
     updateLeftDrawer(value) {
       this.$emit('update:leftDrawerOpen', value); // Emitne udalosť na aktualizáciu hodnoty
     },
-    setStatus(status) {
-      this.status = status; // Aktualizuje stav podľa zvoleného
+    setStatus(value) {
+      this.status = value;
+      if (value === 'Online') {
+      this.statusColor = 'green'
+    } else {
+      this.statusColor = 'grey'
+    }
+
     }
   }
 };
