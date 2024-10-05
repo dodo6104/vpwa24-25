@@ -105,7 +105,7 @@ export default {
 }
 
 .full-width-message {
-  width: 100%;
+  width: 45%;
 }
 
 .message-right {

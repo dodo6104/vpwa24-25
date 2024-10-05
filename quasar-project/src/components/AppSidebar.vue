@@ -57,6 +57,13 @@
           </div>
         </template>
         <q-list>
+
+          <q-item clickable @click="setStatus('Online')">
+            <q-item-section avatar>
+              <q-btn flat round icon="logout" @click="logout" />
+            </q-item-section>
+            <q-item-section @click="logout">Logout</q-item-section>
+          </q-item>
           <q-item clickable @click="setStatus('Online')">
             <q-item-section avatar>
               <q-icon class="q-ml-md" name="circle" color="green" size="xs"/>
@@ -71,7 +78,6 @@
           </q-item>
         </q-list>
       </q-btn-dropdown>
- <!-- New Channel Form Component -->
 
 
     </div>
@@ -155,7 +161,16 @@ addChannel(channel) {
   },
   closeNewChannelForm() {
     this.showNewChannelForm = false; // Close the form
-  }
+  },
+  logout() {
+    console.log(this.$router); // Check if this logs the router instance
+    if (this.$router) {
+      // Clear user session data or perform any logout action
+      localStorage.removeItem('authToken'); // Example of clearing auth data
+      console.log(this.$router); // Check if router is available
+      this.$router.push('/login');
+    }
+    }
 
   }
 };
