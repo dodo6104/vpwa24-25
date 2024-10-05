@@ -22,7 +22,7 @@
       class="q-mt-md"
     />
 
-   
+
     <!-- Error message -->
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
@@ -89,3 +89,9 @@ export default {
   }
 };
 </script>
+<style>
+.error-message{
+  color: red;
+}
+
+</style>

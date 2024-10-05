@@ -9,10 +9,26 @@
     <!-- Main Content -->
 
     <q-page-container class="no-scroll main-content">
+
       <!-- Channel Section (Displays the messages) -->
-      <div class="channel-header">
-        <strong># Channel name</strong>
-      </div>
+      <q-row class="channel-header">
+        <q-col class="q-mr-xl">
+          <strong># Channel name</strong>
+        </q-col>
+        <q-col v-if="isVisible" class="q-mr-xl" cols="4">
+          <q-input label="Nickname" outlined  :dense="dense">
+            <template v-slot:append>
+              <q-icon v-if="text !== ''" name="close" @click="text = ''" class="cursor-pointer" />
+                <q-icon name="search" />
+              </template>
+          </q-input>
+        </q-col>
+        <q-col  v-if="isInChannel()">
+          <q-btn round icon="add" color="primary" label="Add people to chat" @click="addPeople" />
+        </q-col>
+
+
+      </q-row>
 
       <div class="channel-section">
         <ChatWindow
@@ -43,6 +59,7 @@ export default {
   },
   data() {
     return {
+      isVisible: false,
       leftDrawerOpen: true,
       isSmallScreen: false,
       currentChannelId: 0, // Track the current channel
@@ -141,6 +158,17 @@ export default {
 },
 
   methods: {
+    addPeople(){
+      this.isVisible=true;
+    },
+    isInChannel() {
+      if (this.currentChannelId === 0) {
+        return false;
+      } else {
+        return true;
+      }
+    },
+
     onResize({ width }) {
       if (width < 768) {
         this.isSmallScreen = true;
@@ -169,6 +197,7 @@ export default {
     },
     handleChannelSwitch(channel) {
     this.currentChannelId = channel.id;
+    this.isVisible=false;
   },
     async loadMoreMessages() {
 
@@ -240,7 +269,12 @@ export default {
   padding: 10px;
   background-color: #f0f0f0;
   border-bottom: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+
+
 }
+
 
 .channel-section {
   flex-grow: 1;
@@ -252,4 +286,5 @@ export default {
   padding: 20px;
   border-top: 1px solid #ccc;
 }
+
 </style>

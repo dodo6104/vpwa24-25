@@ -12,11 +12,17 @@
         <q-list>
           <q-item>
             <q-item-section>
-              <strong>Channels</strong>
+              <q-row>
+
+                <q-col class="q-mr-md">
+                  <strong>Channels</strong>
+                </q-col>
+
                 <!-- Add Channel Button -->
-                <div class="q-pa-md">
-                <q-btn round icon="add" color="primary" label="Add Channel" @click="openNewChannelForm" />
-              </div>
+                <q-col class="text-right">
+                  <q-btn round icon="add" color="primary" label="Add Channel" @click="openNewChannelForm" />
+                </q-col>
+              </q-row>
             </q-item-section>
           </q-item>
           <q-separator />
@@ -176,3 +182,7 @@ addChannel(channel) {
 };
 </script>
 
+<style>
+
+
+</style>
