@@ -1,14 +1,5 @@
 <template>
   <q-layout view="hHh LpR fFf" class="full-height-layout">
-    <!-- Header -->
-    <q-header elevated>
-      <q-toolbar>
-        <!-- Show menu button on small screens -->
-        <q-btn v-if="isSmallScreen" flat dense round icon="menu" @click="leftDrawerOpen = !leftDrawerOpen" />
-        <q-toolbar-title>Fake Slack</q-toolbar-title>
-      </q-toolbar>
-    </q-header>
-
     <!-- Sidebar -->
     <AppSidebar
       :leftDrawerOpen="leftDrawerOpen"
@@ -16,8 +7,13 @@
       @switch-channel="handleChannelSwitch" />
 
     <!-- Main Content -->
+
     <q-page-container class="no-scroll main-content">
       <!-- Channel Section (Displays the messages) -->
+      <div class="channel-header">
+        <strong># Channel name</strong>
+      </div>
+
       <div class="channel-section">
         <ChatWindow
           :messages="messages"
@@ -238,6 +234,14 @@ return new Promise((resolve) => {
   justify-content: space-between;
 }
 
+.channel-header {
+  font-size: 24px;
+  font-weight: bold;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #ccc;
+}
+
 .channel-section {
   flex-grow: 1;
   overflow: hidden;
@@ -245,7 +249,7 @@ return new Promise((resolve) => {
 
 .commandline {
   background-color: #f5f5f5;
-  padding: 10px;
+  padding: 20px;
   border-top: 1px solid #ccc;
 }
 </style>
