@@ -7,6 +7,7 @@
       type="textarea"
       @keyup.enter="sendMessage"
       dense
+      
       outlined
       clearable
 

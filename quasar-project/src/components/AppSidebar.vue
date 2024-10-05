@@ -5,6 +5,7 @@
     side="left"
     bordered
   >
+
     <div class="column full-height">
       <!-- Sekcia kanálov (70%) s možnosťou scrollovania -->
       <div class="q-pa-md q-scroll" style="flex: 9; overflow-y: auto;">
@@ -12,9 +13,15 @@
           <q-item>
             <q-item-section>
               <strong>Channels</strong>
+                <!-- Add Channel Button -->
+                <div class="q-pa-md">
+                <q-btn round icon="add" color="primary" label="Add Channel" @click="openNewChannelForm" />
+              </div>
             </q-item-section>
           </q-item>
           <q-separator />
+
+
 
              <!-- Dynamically render channels -->
              <q-item v-for="channel in channels" :key="channel.id" clickable v-ripple @click="goTo(channel)">
@@ -30,7 +37,12 @@
         </q-list>
       </div>
 
+
       <q-separator />
+      <!-- New Channel Form Component -->
+<div v-if="showNewChannelForm">
+        <NewChannelForm @submit="addChannel" @cancel="closeNewChannelForm" />
+      </div>
       <q-btn-dropdown anchor="top" ref="statusdropdown">
         <template v-slot:label>
           <div class="flex justify-between items-center q-border full-width">
@@ -59,15 +71,25 @@
           </q-item>
         </q-list>
       </q-btn-dropdown>
+ <!-- New Channel Form Component -->
+
 
     </div>
   </q-drawer>
 </template>
 
 <script>
+import NewChannelForm from './NewChannelForm.vue';
+
 export default {
+  components: {
+    NewChannelForm,
+  },
   data() {
+
     return {
+
+
       userName: 'dodo6104',
       status: 'online',
       statusColor: 'green',
@@ -75,7 +97,8 @@ export default {
         { id: 1, name: 'Channel 1', route: 'chat/channel1', icon: 'lock' },
         { id: 2, name: 'Channel 2', route: 'chat/channel2', icon: 'tag' }
       ],
-      selectedChannel: null // Track selected channel
+      selectedChannel: null ,// Track selected channel
+      showNewChannelForm: false // Control form visibility
     };
   },
   props: {
@@ -119,8 +142,20 @@ export default {
   this.loadingOlderMessages = false;
 
   this.$router.push('/'); // Redirect to default route
-}
+},
+addChannel(channel) {
+    // Add the new channel to the list
+    this.channels.push(channel);
 
+    // Hide the form after adding the channel
+    this.showNewChannelForm = false;
+  },
+  openNewChannelForm() {
+    this.showNewChannelForm = true; // Open the form
+  },
+  closeNewChannelForm() {
+    this.showNewChannelForm = false; // Close the form
+  }
 
   }
 };
