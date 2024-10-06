@@ -12,17 +12,6 @@
       class="q-mt-md"
     />
 
-    <!-- Add People (Multi-Select) -->
-    <q-select
-      v-model="selectedPeople"
-      :options="peopleOptions"
-      label="Add People"
-      filled
-      multiple
-      class="q-mt-md"
-    />
-
-
     <!-- Error message -->
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 

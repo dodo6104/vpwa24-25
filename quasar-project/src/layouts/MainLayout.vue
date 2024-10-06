@@ -254,6 +254,7 @@ export default {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  font-family: 'Roboto', sans-serif;
 }
 
 .main-content {
@@ -274,7 +275,6 @@ export default {
 
 
 }
-
 
 .channel-section {
   flex-grow: 1;
