@@ -74,6 +74,13 @@
             </q-item-section>
             <q-item-section>Offline</q-item-section>
           </q-item>
+          <q-item clickable @click="setStatus('DND')">
+              <q-item-section avatar>
+                <q-icon class="q-ml-md" name="circle" color="orange" size="xs"/>
+              </q-item-section>
+              <q-item-section>Do Not Disturb</q-item-section>
+            </q-item>
+
         </q-list>
       </q-btn-dropdown>
     </div>
@@ -174,6 +181,9 @@ export default {
           break;
         case 'Offline':
           this.statusColor = 'red';
+          break;
+        case 'DND':
+          this.statusColor = 'orange';
           break;
         default:
           this.statusColor = 'green';

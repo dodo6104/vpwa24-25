@@ -11,24 +11,47 @@
     <q-page-container class="no-scroll main-content">
 
       <!-- Channel Section (Displays the messages) -->
-      <q-row class="channel-header">
-        <q-col class="q-mr-xl">
+      <q-row class="channel-header justify-between">
+  <!-- Channel Name on the left -->
+        <q-col cols="auto">
           <strong># Channel name</strong>
         </q-col>
-        <q-col v-if="isVisible" class="q-mr-xl" cols="4">
-          <q-input label="Nickname" outlined  :dense="dense">
-            <template v-slot:append>
-              <q-icon v-if="text !== ''" name="close" @click="text = ''" class="cursor-pointer" />
-                <q-icon name="search" />
-              </template>
-          </q-input>
-        </q-col>
-        <q-col  v-if="isInChannel()">
-          <q-btn round icon="add" color="primary" label="Add people to chat" @click="addPeople" />
-        </q-col>
 
-
+        <!-- Icon and Invite People on the right -->
+        <q-col cols="auto" v-if="isInChannel()">
+          <div class="row items-center justify-end">
+            <q-btn class="add addButton" round icon="add" size="sm" color="dark" @click="addPeople" />
+            <span class="q-ml-sm text">Invite people</span>
+          </div>
+        </q-col>
       </q-row>
+
+      <!-- New Dialog Window for inviting -->
+      <q-dialog v-model="isVisible">
+        <q-card style="width: 500px; max-width: 90vw; background-color: #121212; border-radius: 8px; color: #ffffff;">
+          <q-separator />
+          <q-card-section>
+            <div class="text-h6">Enter Nickname</div>
+          </q-card-section>
+
+          <q-card-section>
+            <q-col class="q-mr-xl" cols="4">
+              <q-input class="custom_input" v-model="nickname" label="Nickname" outlined :dense="dense" :error="nicknameError" :error-message="nicknameErrorMessage">
+                <template v-slot:append>
+                  <q-icon v-if="nickname !== ''" name="close" @click="nickname = ''" class="cursor-pointer" />
+                  <q-icon name="search" />
+                </template>
+              </q-input>
+            </q-col>
+          </q-card-section>
+
+          <q-card-actions align="right" class="q-pt-md">
+            <q-btn flat label="Cancel" color="white" @click="closeNicknameDialog" />
+            <q-btn flat label="Submit" color="primary" class="text-weight-bold" @click="submitNickname" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+
 
       <div class="channel-section">
         <ChatWindow
@@ -62,6 +85,9 @@ export default {
       isVisible: false,
       leftDrawerOpen: true,
       isSmallScreen: false,
+      nicknameError:false,
+      nicknameErrorMessage:'',
+      nickname:'',
       currentChannelId: 0, // Track the current channel
       channelMessages: { // Store messages for each channel
         1: [
@@ -159,7 +185,30 @@ export default {
 
   methods: {
     addPeople(){
+      this.nicknameError = false;
+      this.nicknameErrorMessage = '';
       this.isVisible=true;
+    },
+    closeNicknameDialog() {
+      this.errorMessage=false;
+      this.nicknameErrorMessage = '';
+      this.isVisible = false;
+      this.nickname = '';
+    },
+    submitNickname() {
+      // Handle nickname submission logic
+      if (this.nickname.trim() !== '') {
+        console.log('Nickname submitted:', this.nickname);
+        this.isVisible = false;
+        this.nickname = '';
+        this.isVisible=false;
+        this.nicknameErrorMessage = '';
+      } else {
+        this.nicknameError=true,
+        this.nicknameErrorMessage='Please fill in the nickname'
+        console.warn('Nickname is required!');
+      }
+
     },
     isInChannel() {
       if (this.currentChannelId === 0) {
@@ -199,11 +248,10 @@ export default {
     this.currentChannelId = channel.id;
     this.isVisible=false;
   },
-    async loadMoreMessages() {
-
-  // Check if the current channel is valid
-  if (this.currentChannelId === 0) {
-    return Promise.resolve([]); // Return an empty array if no channel is selected
+  async loadMoreMessages() {
+  // Check if the current channel is valid and has messages
+  if (this.currentChannelId === 0 || !this.channelMessages[this.currentChannelId] || this.channelMessages[this.currentChannelId].length === 0) {
+    return Promise.resolve([]); // Return an empty array if no channel is selected or channel has no messages
   }
 
   return new Promise((resolve) => {
@@ -212,7 +260,7 @@ export default {
         {
           name: 'me',
           avatar: '',
-          text: ['Simulating loading1'],
+          text: ['Simulating loading older messages'],
           stamp: '10 minutes ago',
           sent: true,
           bgColor: 'amber-7'
@@ -220,35 +268,47 @@ export default {
         {
           name: 'Sam',
           avatar: '',
-          text: ['loading 2'],
+          text: ['Simulated older message'],
           stamp: '3 minutes ago',
           bgColor: 'primary',
           textColor: 'white'
         }
       ];
 
-      // Ensure that the channel is still valid before prepending messages
-      if (this.currentChannelId !== 0) {
-        // Prepend the older messages to the current channel's messages
-        this.channelMessages[this.currentChannelId] = [
-          ...olderMessages,
-          ...this.channelMessages[this.currentChannelId]
-        ];
-      }
+      // Prepend the older messages to the current channel's messages
+      this.channelMessages[this.currentChannelId] = [
+        ...olderMessages,
+        ...this.channelMessages[this.currentChannelId]
+      ];
 
       resolve(olderMessages);
     }, 1000);
   });
 }
 
+
   },
   mounted() {
     this.onResize({ width: window.innerWidth });
-  }
+  },
+
+
 };
 </script>
 
 <style scoped>
+
+.text{
+  font-size: large;
+  color: black;
+
+}
+.custom_input{
+  background-color: white;
+  color: black;
+  padding: 4px;
+  border-radius: 4px;
+}
 .full-height-layout {
   height: 100vh;
   overflow: hidden;
@@ -276,7 +336,12 @@ export default {
 
 
 }
-
+@media (max-width: 350px) {
+  .channel-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
 .channel-section {
   flex-grow: 1;
   overflow: hidden;
