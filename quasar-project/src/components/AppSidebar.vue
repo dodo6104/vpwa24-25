@@ -28,6 +28,16 @@
             @delete-channel="deleteChannel"
             class="q-ml-md q-mr-md q-mb-sm"
           />
+          <strong class="text-font">Invitations</strong>
+          <inviteItem
+      v-for="invitedChannel in invitedChannels"
+      :key="invitedChannel.id"
+      :invitedChannel="invitedChannel"
+      :selectedChannel="selectedChannel"
+      @accept-invitation="handleAcceptInvitation"
+      @decline-invitation="handleDeclineInvitation"
+      class="q-ml-md q-mr-md q-mb-sm"
+    />
         </q-list>
       </div>
 
@@ -98,10 +108,11 @@
 
 <script>
 import ChannelItem from './ChannelItem.vue';
-
+import inviteItem from './inviteItem.vue';
 export default {
   components: {
-    ChannelItem
+    ChannelItem,
+    inviteItem
   },
   data() {
     return {
@@ -111,6 +122,10 @@ export default {
       channels: [
         { id: 1, name: 'Channel 1', route: 'chat/channel1', icon: 'lock' },
         { id: 2, name: 'Channel 2', route: 'chat/channel2', icon: 'tag' }
+      ],
+      invitedChannels: [
+        { id: 100, name: 'Channel 3', route: 'chat/channel3', icon: 'lock' },
+        { id: 101, name: 'Channel 4', route: 'chat/channel4', icon: 'tag' }
       ],
       selectedChannel: null, // Track selected channel
       showNewChannelForm: false, // Control dialog visibility
@@ -195,10 +210,9 @@ export default {
       };
       this.channels.push(newChannel);
 
-      // Automatically select and navigate to the new channel
-      this.selectedChannel = newChannel;
-      this.$router.push(`/${newChannel.route}`);
-
+       // Automatically select and navigate to the accepted channel
+       this.selectedChannel = newChannel;
+       this.$emit('switch-channel', newChannel);
       // Hide the form after adding the channel
       this.closeNewChannelForm();
       this.loading = false;
@@ -215,7 +229,52 @@ export default {
         localStorage.removeItem('authToken'); // Example of clearing auth data
         this.$router.push('/login');
       }
+    },
+    handleAcceptInvitation(channelId) {
+    if (this.loading) return;
+    this.loading = true;
+
+    // Find the invited channel based on the ID
+    const invitedChannel = this.invitedChannels.find(channel => channel.id === channelId);
+
+    if (!invitedChannel) {
+      this.loading = false;
+      return; // If no channel found, exit
     }
+
+    // Add the invited channel to the channels list
+    const newChannel = {
+      id: invitedChannel.id,
+      name: invitedChannel.name,
+      route: `chat/${invitedChannel.name.toLowerCase().replace(/\s+/g, '-')}`,
+      icon: invitedChannel.icon
+    };
+
+    this.channels.push(newChannel);
+
+    // Reset the selected channel and emit the switch event
+    this.selectedChannel = newChannel;
+    this.$emit('switch-channel', newChannel); // Emit the selected channel
+
+    // Remove the channel from the invitedChannels list
+    this.invitedChannels = this.invitedChannels.filter(channel => channel.id !== channelId);
+
+    // Redirect to default route if no channels remain
+    if (this.channels.length === 0) {
+      this.$emit('switch-channel', { id: 0 }); // Emit the default channel (no selected channel)
+    }
+
+    this.loading = false;
+
+    console.log(`Accepted invitation for channel ${channelId}`);
+  },
+
+  handleDeclineInvitation(channelId) {
+    // Simply remove the declined channel from the invitedChannels list
+    this.invitedChannels = this.invitedChannels.filter(channel => channel.id !== channelId);
+
+    console.log(`Declined invitation for channel ${channelId}`);
+  }
   }
 };
 </script>

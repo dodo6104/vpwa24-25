@@ -98,6 +98,7 @@ export default {
   height: 100%;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  
 }
 
 .chat-window::-webkit-scrollbar {

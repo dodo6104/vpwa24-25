@@ -262,6 +262,7 @@ export default {
   flex-direction: column;
   flex-grow: 1;
   justify-content: space-between;
+
 }
 
 .channel-header {
@@ -279,6 +280,7 @@ export default {
 .channel-section {
   flex-grow: 1;
   overflow: hidden;
+
 }
 
 .commandline {
