@@ -60,7 +60,7 @@ export default {
 
     },
     loadOlderMessages() {
-      this.loadingOlderMessages = true; 
+      this.loadingOlderMessages = true;
       this.oldScrollHeight = this.$refs.chatWindow.scrollHeight;
 
       // Call the parent method to load more messages
@@ -94,10 +94,11 @@ export default {
   flex-grow: 1;
   padding: 10px;
   overflow-y: auto;
-  background-color: #fff;
+  background-color: white;
   height: 100%;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  
 }
 
 .chat-window::-webkit-scrollbar {

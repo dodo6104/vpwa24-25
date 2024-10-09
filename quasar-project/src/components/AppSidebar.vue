@@ -29,15 +29,15 @@
             class="q-ml-md q-mr-md q-mb-sm"
           />
           <strong class="text-font">Invitations</strong>
-          <inviteItem
-      v-for="invitedChannel in invitedChannels"
-      :key="invitedChannel.id"
-      :invitedChannel="invitedChannel"
-      :selectedChannel="selectedChannel"
-      @accept-invitation="handleAcceptInvitation"
-      @decline-invitation="handleDeclineInvitation"
-      class="q-ml-md q-mr-md q-mb-sm"
-    />
+            <inviteItem
+                v-for="invitedChannel in invitedChannels"
+                :key="invitedChannel.id"
+                :invitedChannel="invitedChannel"
+                :selectedChannel="selectedChannel"
+                @accept-invitation="handleAcceptInvitation"
+                @decline-invitation="handleDeclineInvitation"
+                class="q-ml-md q-mr-md q-mb-sm"
+              />
         </q-list>
       </div>
 
@@ -101,7 +101,8 @@
             dense
             filled
           />
-          <q-checkbox class="channel-checkbox" v-model="newChannel.isPrivate" label="Private Channel"/>
+          <q-checkbox dark class="channel-checkbox" v-model="newChannel.isPrivate" label="Private Channel"/>
+
         </q-card-section>
 
         <q-card-actions align="right" class="q-pt-md">
@@ -127,8 +128,8 @@ export default {
       status: 'online',
       statusColor: 'green',
       channels: [
-        { id: 1, name: 'Channel 1', route: 'chat/channel1', icon: 'lock' },
-        { id: 2, name: 'Channel 2', route: 'chat/channel2', icon: 'tag' }
+        { id: 1, name: 'Channel 1', route: 'chat/channel1', icon: 'lock'},
+        { id: 2, name: 'Channel 2', route: 'chat/channel2', icon: 'tag'}
       ],
       invitedChannels: [
         { id: 100, name: 'Channel 3', route: 'chat/channel3', icon: 'lock' },
@@ -163,10 +164,8 @@ export default {
   methods: {
     goTo(channel) {
       // Set the selected channel and emit the change
-      this.selectedChannel = channel; // Set the current selected channel
-      this.$emit('switch-channel', channel);
-
-      // Navigate to the selected channel's route using Vue Router
+      this.selectedChannel = channel;
+      this.$emit('switch-channel', channel); // Emit the entire channel object
       this.$router.push(`/${channel.route}`);
     },
     updateLeftDrawer(value) {
@@ -290,6 +289,7 @@ export default {
 </script>
 
 <style scoped>
+
 .full-height {
   height: 100%; /* Set full height */
 }
@@ -357,4 +357,5 @@ export default {
   margin: 0;
   padding: 0;
 }
+
 </style>

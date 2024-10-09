@@ -14,7 +14,8 @@
       <q-row class="channel-header justify-between">
   <!-- Channel Name on the left -->
         <q-col cols="auto">
-          <strong># Channel name</strong>
+          <strong>#{{ currentChannelName }}</strong>
+
         </q-col>
 
         <!-- Icon and Invite People on the right -->
@@ -88,6 +89,7 @@ export default {
       nicknameError:false,
       nicknameErrorMessage:'',
       nickname:'',
+      currentChannel:'',
       currentChannelId: 0, // Track the current channel
       channelMessages: { // Store messages for each channel
         1: [
@@ -180,10 +182,18 @@ export default {
   computed: {
   messages() {
     return this.currentChannelId === 0 ? [] : this.channelMessages[this.currentChannelId] || [];
-  }
+  },
+  currentChannelName() {
+    return this.currentChannel && this.currentChannel.id !== 0
+        ? this.currentChannel.name
+        : 'General';
+
+    },
 },
 
   methods: {
+
+
     addPeople(){
       this.nicknameError = false;
       this.nicknameErrorMessage = '';
@@ -245,8 +255,12 @@ export default {
       this.channelMessages[this.currentChannelId].push(newMessage);
     },
     handleChannelSwitch(channel) {
+      this.currentChannel = channel; // Update the current channel when emitted from AppSidebar
+
+
     this.currentChannelId = channel.id;
     this.isVisible=false;
+
   },
   async loadMoreMessages() {
   // Check if the current channel is valid and has messages
@@ -315,6 +329,7 @@ export default {
   display: flex;
   flex-direction: column;
   font-family: 'Roboto', sans-serif;
+
 }
 
 .main-content {
