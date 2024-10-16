@@ -11,7 +11,7 @@
 
       <q-row class="channel-header justify-between">
         <q-col cols="auto">
-          <strong>#{{ currentChannelName }}</strong>
+          <span><q-icon :name="currentChannelTag" size="sm"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ currentChannelName}}</span>
         </q-col>
 
         <!-- Icon and Invite People on the right -->
@@ -127,6 +127,9 @@ export default {
   computed: {
     messages() {
       return this.currentChannelId === 0 ? [] : this.channelMessages[this.currentChannelId] || [];
+    },
+    currentChannelTag(){
+      return this.currentChannel && this.currentChannelId != 0 ? this.currentChannel.icon : '';
     },
     currentChannelName() {
       return this.currentChannel && this.currentChannel.id !== 0
