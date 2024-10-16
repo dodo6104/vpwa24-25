@@ -3,7 +3,7 @@
     :model-value="leftDrawerOpen"
     @update:model-value="updateLeftDrawer"
     side="left"
-    bordered
+    
     class="drawer-bg full-height"
   >
     <div class="column full-height background-black">

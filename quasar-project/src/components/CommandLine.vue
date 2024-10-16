@@ -1,16 +1,13 @@
-
 <template>
-  <div class="commandline-wrapper">
+  <div class="commandline-wrapper" style="max-height: 300px;">
     <q-input
       v-model="message"
       placeholder="Type command or message"
       type="textarea"
       @keyup.enter="sendMessage"
       dense
-      
       outlined
       clearable
-
     >
       <template v-slot:append>
         <q-btn
@@ -51,4 +48,3 @@ export default {
 <style scoped>
 
 </style>
-

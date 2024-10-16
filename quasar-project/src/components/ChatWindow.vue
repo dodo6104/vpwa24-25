@@ -94,11 +94,10 @@ export default {
   flex-grow: 1;
   padding: 10px;
   overflow-y: auto;
-  background-color: white;
   height: 100%;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  
+
 }
 
 .chat-window::-webkit-scrollbar {
