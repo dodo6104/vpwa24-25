@@ -39,8 +39,7 @@ export default {
   mounted() {
     // Použitie nextTick, aby sme sa uistili, že DOM je plne vykreslený
     nextTick(() => {
-      const inputElement =
-        this.$refs.messageInput.$el.querySelector('textarea');
+      const inputElement = this.$refs.messageInput.$el.querySelector('textarea');
 
       if (inputElement) {
         inputElement.addEventListener('input', () => {
@@ -56,8 +55,7 @@ export default {
       this.updateTextColor(); // Aktualizácia farby textu
     },
     updateTextColor() {
-      const inputElement =
-        this.$refs.messageInput.$el.querySelector('textarea');
+      const inputElement = this.$refs.messageInput.$el.querySelector('textarea');
       if (this.isCommand) {
         inputElement.style.color = 'red'; // Nastav text na červený
       } else {
@@ -70,53 +68,45 @@ export default {
       }
       this.sendMessage();
     },
+    validateCommandFormat(command, argument) {
+      if (['/join', '/invite'].includes(command)) {
+        // Validate for /join and /invite commands
+        return argument && argument.length >= 4 && !argument.includes(' ');
+      }
+      return true; // Other commands don't need special validation
+    },
     sendMessage() {
       if (this.message.trim()) {
         let firstWord = this.message.split(' ')[0];
         const commandArgument = this.message.split(' ').slice(1).join(' ');
         firstWord = firstWord.replace(/\s/g, ''); // odstráni všetky biele znaky
-        console.log(this.isCommand);
+
         if (firstWord === '/join') {
-          Notify.create({
-            message: `You have joined ${commandArgument}`,
-            color: 'positive',
-          });
+          Notify.create({ message: `You have joined ${commandArgument}`, color: 'positive' });
           this.message = '';
           this.isCommand = false;
           this.updateTextColor();
           return;
         } else if (firstWord === '/invite') {
-          Notify.create({
-            message: `You have invited ${commandArgument}`,
-            color: 'positive',
-          });
+          Notify.create({ message: `You have invited ${commandArgument}`, color: 'positive' });
           this.message = '';
           this.isCommand = false;
           this.updateTextColor();
           return;
         } else if (firstWord === '/revoke') {
-          Notify.create({
-            message: `You have revoked ${commandArgument}`,
-            color: 'warning',
-          });
+          Notify.create({ message: `You have revoked ${commandArgument}`, color: 'warning' });
           this.message = '';
           this.isCommand = false;
           this.updateTextColor();
           return;
         } else if (firstWord === '/kick') {
-          Notify.create({
-            message: `You have kicked ${commandArgument}`,
-            color: 'negative',
-          });
+          Notify.create({ message: `You have kicked ${commandArgument}`, color: 'negative' });
           this.message = '';
           this.isCommand = false;
           this.updateTextColor();
           return;
         } else if (firstWord === '/quit') {
-          Notify.create({
-            message: `You have quit ${commandArgument}`,
-            color: 'info',
-          });
+          Notify.create({ message: `You have quit ${commandArgument}`, color: 'info' });
           this.message = '';
           this.isCommand = false;
           this.updateTextColor();

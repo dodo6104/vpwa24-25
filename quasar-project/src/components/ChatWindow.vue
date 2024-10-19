@@ -173,6 +173,7 @@ export default {
 
 .full-width-message {
   width: 45%;
+  color: white;
 }
 
 .message-right {
