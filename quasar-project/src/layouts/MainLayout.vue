@@ -304,7 +304,8 @@ export default {
 }
 .custom_input {
   color: white;
-  padding: 8px;
+  background-color: white;
+  padding: 4px;
   border-radius: 4px;
   border: 1px solid #555;
 }
@@ -334,12 +335,7 @@ export default {
   height: 9.5%;
   margin-left: 20px;
 }
-@media (max-width: 350px) {
-  .channel-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
+
 .channel-section {
   flex-grow: 1;
   overflow: auto;
