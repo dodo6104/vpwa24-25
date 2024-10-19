@@ -3,22 +3,36 @@
     :model-value="leftDrawerOpen"
     @update:model-value="updateLeftDrawer"
     side="left"
-    
     class="drawer-bg full-height"
   >
     <div class="column full-height background-black">
       <q-row style="flex: 1;" class="q-pl-md q-pr-md bottom-channels">
         <q-col class="q-pb-xl channels-top">
-          <strong class="text-font">Channels</strong>
-        </q-col>
-
-        <q-col>
-          <q-btn round icon="add" color="black" @click="openNewChannelForm" />
+          <strong class="text-font">Invitations</strong>
         </q-col>
       </q-row>
 
       <div class="background-ligher-black q-pt-md q-ml-md q-mr-md" style="flex: 8;">
         <q-list class="full-height">
+          <inviteItem
+            v-for="invitedChannel in invitedChannels"
+            :key="invitedChannel.id"
+            :invitedChannel="invitedChannel"
+            :selectedChannel="selectedChannel"
+            @accept-invitation="handleAcceptInvitation"
+            @decline-invitation="handleDeclineInvitation"
+            class="q-ml-md q-mr-md q-mb-sm"
+          />
+          <div style="display: flex; background-color: black; padding-top: 40px; margin-bottom: 20px;">
+            <q-row>
+              <q-col>
+                <strong class="text-font" style="padding-right: 150px;">Channels</strong>
+              </q-col>
+              <q-col floa>
+                <q-btn round icon="add" color="black" @click="openNewChannelForm" />
+              </q-col>
+            </q-row>
+          </div>
           <ChannelItem
             v-for="channel in channels"
             :key="channel.id"
@@ -28,16 +42,6 @@
             @delete-channel="deleteChannel"
             class="q-ml-md q-mr-md q-mb-sm"
           />
-          <strong class="text-font">Invitations</strong>
-            <inviteItem
-                v-for="invitedChannel in invitedChannels"
-                :key="invitedChannel.id"
-                :invitedChannel="invitedChannel"
-                :selectedChannel="selectedChannel"
-                @accept-invitation="handleAcceptInvitation"
-                @decline-invitation="handleDeclineInvitation"
-                class="q-ml-md q-mr-md q-mb-sm"
-              />
         </q-list>
       </div>
 
@@ -64,23 +68,22 @@
           </q-item>
           <q-item clickable @click="setStatus('Online')">
             <q-item-section avatar>
-              <q-icon class="q-ml-md" name="circle" color="green" size="xs"/>
+              <q-icon class="q-ml-md" name="circle" color="green" size="xs" />
             </q-item-section>
             <q-item-section>Online</q-item-section>
           </q-item>
           <q-item clickable @click="setStatus('Offline')">
             <q-item-section avatar>
-              <q-icon class="q-ml-md" name="circle" color="red" size="xs"/>
+              <q-icon class="q-ml-md" name="circle" color="red" size="xs" />
             </q-item-section>
             <q-item-section>Offline</q-item-section>
           </q-item>
           <q-item clickable @click="setStatus('DND')">
-              <q-item-section avatar>
-                <q-icon class="q-ml-md" name="circle" color="orange" size="xs"/>
-              </q-item-section>
-              <q-item-section>Do Not Disturb</q-item-section>
-            </q-item>
-
+            <q-item-section avatar>
+              <q-icon class="q-ml-md" name="circle" color="orange" size="xs" />
+            </q-item-section>
+            <q-item-section>Do Not Disturb</q-item-section>
+          </q-item>
         </q-list>
       </q-btn-dropdown>
     </div>
@@ -101,8 +104,7 @@
             dense
             filled
           />
-          <q-checkbox dark class="channel-checkbox" v-model="newChannel.isPrivate" label="Private Channel"/>
-
+          <q-checkbox dark class="channel-checkbox" v-model="newChannel.isPrivate" label="Private Channel" />
         </q-card-section>
 
         <q-card-actions align="right" class="q-pt-md">
@@ -128,12 +130,12 @@ export default {
       status: 'online',
       statusColor: 'green',
       channels: [
-        { id: 1, name: 'Channel 1', route: 'chat/channel1', icon: 'lock'},
-        { id: 2, name: 'Channel 2', route: 'chat/channel2', icon: 'tag'}
+        { id: 1, name: 'Channel 1', route: 'chat/channel1', icon: 'lock', newMessages: 10 },
+        { id: 2, name: 'Channel 2', route: 'chat/channel2', icon: 'tag', messages: 10 }
       ],
       invitedChannels: [
-        { id: 100, name: 'Channel 3', route: 'chat/channel3', icon: 'lock' },
-        { id: 101, name: 'Channel 4', route: 'chat/channel4', icon: 'tag' }
+        { id: 100, name: 'Channel 3', route: 'chat/channel3', icon: 'lock', newMessages: 10 },
+        { id: 101, name: 'Channel 4', route: 'chat/channel4', icon: 'tag', newMessages: 10 }
       ],
       selectedChannel: null, // Track selected channel
       showNewChannelForm: false, // Control dialog visibility
@@ -144,8 +146,7 @@ export default {
         isPrivate: false
       },
       channelOptions: [
-        { label: 'Text', value: 'Text' },
-        { label: 'Voice', value: 'Voice' }
+        { label: 'Text', value: 'Text' }
       ]
     };
   },
@@ -174,7 +175,7 @@ export default {
     setStatus(value) {
       this.status = value;
       this.$refs.statusdropdown.hide();
-      switch(value) {
+      switch (value) {
         case 'Online':
           this.statusColor = 'green';
           break;
@@ -219,9 +220,9 @@ export default {
       };
       this.channels.push(newChannel);
 
-       // Automatically select and navigate to the accepted channel
-       this.selectedChannel = newChannel;
-       this.$emit('switch-channel', newChannel);
+      // Automatically select and navigate to the accepted channel
+      this.selectedChannel = newChannel;
+      this.$emit('switch-channel', newChannel);
       // Hide the form after adding the channel
       this.closeNewChannelForm();
       this.loading = false;
@@ -240,56 +241,50 @@ export default {
       }
     },
     handleAcceptInvitation(channelId) {
-    if (this.loading) return;
-    this.loading = true;
+      if (this.loading) return;
+      this.loading = true;
 
-    // Find the invited channel based on the ID
-    const invitedChannel = this.invitedChannels.find(channel => channel.id === channelId);
+      // Find the invited channel based on the ID
+      const invitedChannel = this.invitedChannels.find(channel => channel.id === channelId);
 
-    if (!invitedChannel) {
+      if (!invitedChannel) {
+        this.loading = false;
+        return; // If no channel found, exit
+      }
+
+      // Add the invited channel to the channels list
+      const newChannel = {
+        id: invitedChannel.id,
+        name: invitedChannel.name,
+        route: `chat/${invitedChannel.name.toLowerCase().replace(/\s+/g, '-')}`,
+        icon: invitedChannel.icon
+      };
+
+      this.channels.push(newChannel);
+
+      // Reset the selected channel and emit the switch event
+      this.selectedChannel = newChannel;
+      this.$emit('switch-channel', newChannel); // Emit the selected channel
+
+      // Remove the channel from the invitedChannels list
+      this.invitedChannels = this.invitedChannels.filter(channel => channel.id !== channelId);
+
       this.loading = false;
-      return; // If no channel found, exit
+
+      console.log(`Accepted invitation for channel ${channelId}`);
+    },
+
+    handleDeclineInvitation(channelId) {
+      // Simply remove the declined channel from the invitedChannels list
+      this.invitedChannels = this.invitedChannels.filter(channel => channel.id !== channelId);
+
+      console.log(`Declined invitation for channel ${channelId}`);
     }
-
-    // Add the invited channel to the channels list
-    const newChannel = {
-      id: invitedChannel.id,
-      name: invitedChannel.name,
-      route: `chat/${invitedChannel.name.toLowerCase().replace(/\s+/g, '-')}`,
-      icon: invitedChannel.icon
-    };
-
-    this.channels.push(newChannel);
-
-    // Reset the selected channel and emit the switch event
-    this.selectedChannel = newChannel;
-    this.$emit('switch-channel', newChannel); // Emit the selected channel
-
-    // Remove the channel from the invitedChannels list
-    this.invitedChannels = this.invitedChannels.filter(channel => channel.id !== channelId);
-
-    // Redirect to default route if no channels remain
-    if (this.channels.length === 0) {
-      this.$emit('switch-channel', { id: 0 }); // Emit the default channel (no selected channel)
-    }
-
-    this.loading = false;
-
-    console.log(`Accepted invitation for channel ${channelId}`);
-  },
-
-  handleDeclineInvitation(channelId) {
-    // Simply remove the declined channel from the invitedChannels list
-    this.invitedChannels = this.invitedChannels.filter(channel => channel.id !== channelId);
-
-    console.log(`Declined invitation for channel ${channelId}`);
-  }
   }
 };
 </script>
 
 <style scoped>
-
 .full-height {
   height: 100%; /* Set full height */
 }
@@ -312,10 +307,11 @@ export default {
 
 .background-black {
   background: #000;
+  border-right: 2px solid #444;
 }
 
 .items-stretch {
-  height: 100%
+  height: 100%;
 }
 
 .bottom-channels {
@@ -348,7 +344,6 @@ export default {
 
 .channel-name-input input {
   color: black;
-
 }
 
 .full-screen-dialog .q-dialog {
@@ -357,5 +352,4 @@ export default {
   margin: 0;
   padding: 0;
 }
-
 </style>

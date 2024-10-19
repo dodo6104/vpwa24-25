@@ -1,30 +1,51 @@
 <template>
-  <q-layout view="hHh LpR fFf" class="full-height-layout" >
+  <q-layout view="hHh LpR fFf" class="full-height-layout">
     <!-- Sidebar -->
     <AppSidebar
       :leftDrawerOpen="leftDrawerOpen"
       @update:leftDrawerOpen="leftDrawerOpen = $event"
-      @switch-channel="handleChannelSwitch" />
+      @switch-channel="handleChannelSwitch"
+      class="appside"
+    />
 
     <!-- Main Content -->
     <q-page-container class="no-scroll main-content">
-
       <q-row class="channel-header justify-between">
         <q-col cols="auto">
-          <span><q-icon :name="currentChannelTag" size="sm"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ currentChannelName}}</span>
+          <span
+            ><q-icon
+              :name="currentChannelTag"
+              size="sm"
+            />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ currentChannelName }}</span
+          >
         </q-col>
 
         <!-- Icon and Invite People on the right -->
         <q-col cols="auto" v-if="isInChannel()">
           <div class="row items-center justify-end">
-            <q-btn class="add addButton" round icon="add" size="lg" color="dark" @click="addPeople" />
+            <q-btn
+              class="add addButton"
+              round
+              icon="add"
+              size="lg"
+              color="dark"
+              @click="addPeople"
+            />
           </div>
         </q-col>
       </q-row>
 
       <!-- New Dialog Window for inviting -->
       <q-dialog v-model="isVisible">
-        <q-card style="width: 500px; max-width: 90vw; background-color: #121212; border-radius: 8px; color: #ffffff;">
+        <q-card
+          style="
+            width: 500px;
+            max-width: 90vw;
+            background-color: #121212;
+            border-radius: 8px;
+            color: #ffffff;
+          "
+        >
           <q-separator />
           <q-card-section>
             <div class="text-h6">Enter Nickname</div>
@@ -32,26 +53,47 @@
 
           <q-card-section>
             <q-col class="q-mr-xl" cols="12">
-              <q-input class="custom_input" v-model="nickname" label="Nickname" outlined dense :error="nicknameError" :error-message="nicknameErrorMessage">
+              <q-input
+                class="custom_input"
+                v-model="nickname"
+                label="Nickname"
+                outlined
+                dense
+                :error="nicknameError"
+                :error-message="nicknameErrorMessage"
+              >
                 <template v-slot:append>
-                  <q-icon v-if="nickname !== ''" name="close" @click="nickname = ''" class="cursor-pointer" />
+                  <q-icon
+                    v-if="nickname !== ''"
+                    name="close"
+                    @click="nickname = ''"
+                    class="cursor-pointer"
+                  />
                 </template>
               </q-input>
             </q-col>
           </q-card-section>
 
           <q-card-actions align="right" class="q-pt-md">
-            <q-btn flat label="Cancel" color="white" @click="closeNicknameDialog" />
-            <q-btn flat label="Submit" color="primary" class="text-weight-bold" @click="submitNickname" />
+            <q-btn
+              flat
+              label="Cancel"
+              color="white"
+              @click="closeNicknameDialog"
+            />
+            <q-btn
+              flat
+              label="Submit"
+              color="primary"
+              class="text-weight-bold"
+              @click="submitNickname"
+            />
           </q-card-actions>
         </q-card>
       </q-dialog>
 
       <div class="channel-section commandline-wrapper">
-        <ChatWindow
-          :messages="messages"
-          :loadMoreMessages="loadMoreMessages"
-        />
+        <ChatWindow :messages="messages" :loadMoreMessages="loadMoreMessages" />
 
         <!-- CommandLine Component (for sending messages) -->
         <CommandLine @send-message="handleSendMessage" class="commandline" />
@@ -72,7 +114,7 @@ export default {
   components: {
     AppSidebar,
     CommandLine,
-    ChatWindow
+    ChatWindow,
   },
   data() {
     return {
@@ -92,7 +134,7 @@ export default {
             text: ['Welcome to Channel 1!'],
             stamp: 'just now',
             sent: true,
-            bgColor: 'amber-7'
+            bgColor: 'amber-7',
           },
           {
             name: 'Alex',
@@ -100,8 +142,8 @@ export default {
             text: ['This is Channel 1 conversation.'],
             stamp: '5 minutes ago',
             bgColor: 'primary',
-            textColor: 'white'
-          }
+            textColor: 'white',
+          },
         ],
         2: [
           {
@@ -110,7 +152,7 @@ export default {
             text: ['Welcome to Channel 2!'],
             stamp: 'just now',
             sent: true,
-            bgColor: 'amber-7'
+            bgColor: 'amber-7',
           },
           {
             name: 'Sam',
@@ -118,24 +160,28 @@ export default {
             text: ['This is Channel 2 conversation.'],
             stamp: '3 minutes ago',
             bgColor: 'primary',
-            textColor: 'white'
-          }
-        ]
-      }
+            textColor: 'white',
+          },
+        ],
+      },
     };
   },
   computed: {
     messages() {
-      return this.currentChannelId === 0 ? [] : this.channelMessages[this.currentChannelId] || [];
+      return this.currentChannelId === 0
+        ? []
+        : this.channelMessages[this.currentChannelId] || [];
     },
-    currentChannelTag(){
-      return this.currentChannel && this.currentChannelId != 0 ? this.currentChannel.icon : '';
+    currentChannelTag() {
+      return this.currentChannel && this.currentChannelId != 0
+        ? this.currentChannel.icon
+        : '';
     },
     currentChannelName() {
       return this.currentChannel && this.currentChannel.id !== 0
         ? this.currentChannel.name
-        : 'General';
-    }
+        : '';
+    },
   },
   methods: {
     addPeople() {
@@ -175,7 +221,7 @@ export default {
         text: [message],
         stamp: 'just now',
         sent: true,
-        bgColor: 'amber-7'
+        bgColor: 'amber-7',
       };
 
       if (!this.channelMessages[this.currentChannelId]) {
@@ -190,7 +236,10 @@ export default {
       this.isVisible = false;
     },
     async loadMoreMessages() {
-      if (this.currentChannelId === 0 || !this.channelMessages[this.currentChannelId]) {
+      if (
+        this.currentChannelId === 0 ||
+        !this.channelMessages[this.currentChannelId]
+      ) {
         return Promise.resolve([]);
       }
 
@@ -203,7 +252,7 @@ export default {
               text: ['Simulating loading older messages'],
               stamp: '10 minutes ago',
               sent: true,
-              bgColor: 'amber-7'
+              bgColor: 'amber-7',
             },
             {
               name: 'Sam',
@@ -211,23 +260,40 @@ export default {
               text: ['Simulated older message'],
               stamp: '3 minutes ago',
               bgColor: 'primary',
-              textColor: 'white'
-            }
+              textColor: 'white',
+            },
           ];
 
           this.channelMessages[this.currentChannelId] = [
             ...olderMessages,
-            ...this.channelMessages[this.currentChannelId]
+            ...this.channelMessages[this.currentChannelId],
           ];
 
           resolve(olderMessages);
         }, 1000);
       });
-    }
+    },
+    startNotifications() {
+      setInterval(() => {
+        this.showNotification('New message');
+      }, 10000); // Každých 10 sekúnd
+    },
+
+    showNotification(message) {
+      this.$q.notify({
+        message: message,
+        timeout: 2000, // Zobrazenie na 2 sekundy
+        position: 'top',
+        color: 'white',
+        textColor: 'black',
+        icon: 'message',
+      });
+    },
   },
   mounted() {
     this.onResize({ width: window.innerWidth });
-  }
+    this.startNotifications(); // Spustí notifikácie pri nahraní stránky
+  },
 };
 </script>
 

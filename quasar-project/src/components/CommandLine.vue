@@ -8,6 +8,7 @@
       dense
       outlined
       clearable
+      class="input"
     >
       <template v-slot:append>
         <q-btn
@@ -46,5 +47,9 @@ export default {
 </script>
 
 <style scoped>
+.input {
+  font-size: 24px;
+  color: black;
 
+}
 </style>

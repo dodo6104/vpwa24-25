@@ -3,14 +3,27 @@
     clickable
     v-ripple
     @click="goToChannel"
-    :class="{ 'selected-channel': isSelected }"
+    :class="{ 'selected-channel': isSelected, 'blinking-channel': !isSelected && channel.newMessages > 0 }"
     class="main-container"
   >
     <q-item-section class="col-15 text-font">
-      <span><q-icon :name="channel.icon" size="sm"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ channel.name }}</span>
+      <span>
+        <q-icon :name="channel.icon" size="sm"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        {{ channel.name }}
+      </span>
     </q-item-section>
-    <q-item-section class="col-1" v-if="isSelected">
-      <q-icon name="delete" size="xs" color="white" @click.stop="deleteChannel" />
+    <!-- Ak je kanál zvolený, zobrazí sa ikona koša, inak sa zobrazí počet nových správ, ak je väčší než 0 -->
+    <q-item-section class="col-1">
+      <q-icon
+        v-if="isSelected"
+        name="delete"
+        size="xs"
+        color="white"
+        @click.stop="deleteChannel"
+      />
+      <span v-else-if="channel.newMessages > 0" class="new-messages-count">
+       {{ channel.newMessages }}
+      </span>
     </q-item-section>
   </q-item>
 </template>
@@ -55,5 +68,20 @@ export default {
 .selected-channel {
   background-color: #484848;
   font-weight: bold;
+}
+
+.blinking-channel {
+  animation: blinking-bg 2s infinite;
+}
+
+.new-messages-count {
+  color: white;
+  font-weight: bold;
+}
+
+@keyframes blinking-bg {
+  0% { background-color: #484848; }
+  50% { background-color: rgb(56, 55, 55); } /* Môžeš zmeniť farbu na inú, ktorá vyhovuje tvojmu dizajnu */
+  100% { background-color: #484848; }
 }
 </style>
