@@ -5,7 +5,8 @@
       :leftDrawerOpen="leftDrawerOpen"
       @update:leftDrawerOpen="leftDrawerOpen = $event"
       @switch-channel="handleChannelSwitch"
-      class="appside"
+      class="appside drawer-bg full-height"
+      persistent
     />
 
     <!-- Main Content -->
