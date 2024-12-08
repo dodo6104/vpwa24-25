@@ -87,6 +87,12 @@
             </q-item-section>
             <q-item-section>Do Not Disturb</q-item-section>
           </q-item>
+          <q-item clickable @click="setStatus('MENTION_ONLY')">
+            <q-item-section avatar>
+              <q-icon class="q-ml-md" name="circle" color="blue" size="xs" />
+            </q-item-section>
+            <q-item-section>Mentions Only</q-item-section>
+          </q-item>
           <q-item clickable @click="logout()" class="logout">
             <q-item-section avatar>
               <q-icon class="q-ml-md" name="exit_to_app" color="black" size="xs" />
@@ -230,6 +236,8 @@ export default {
           return 'red'
         case 'DND':
           return 'orange'
+        case 'MENTION_ONLY':
+          return 'blue'
         default:
           return 'grey'
       }

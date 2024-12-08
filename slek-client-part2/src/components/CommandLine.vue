@@ -100,7 +100,7 @@ export default {
           return false
         }
         return true
-      } else if (firstWord === '/quit') {
+      } else if (firstWord === '/quit' || firstWord === '/cancel') {
         if (!this.currentChannel) {
           this.$q.notify({
             message: 'You are not in any channel.',

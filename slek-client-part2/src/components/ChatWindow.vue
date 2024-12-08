@@ -39,14 +39,12 @@
       </p>
     </div>
   </div>
-  <div class="typing-indicator">
-    <p v-if="typingUsers.length > 0">
-      <span v-for="user in typingUsers"
-            :key="user.userId"
-            class="typing-user">
+  <div class="typing-indicator" v-if="typingUsers.length > 0">
+    <p>
+      <span v-for="user in typingUsers" :key="user.userId" class="typing-user">
         {{ user.nickname }}
         <div class="tooltip">
-          <p>{{ user.nickname }}</p>
+          <p><strong>{{ user.nickname }}</strong></p>
           <p>{{ user.message }}</p>
         </div>
       </span>
@@ -273,7 +271,7 @@ export default {
 
 .typing-indicator {
   padding: 20px;
-  background-color: None;
+  background-color: none;
   color: white;
   font-size: 14px;
   display: flex;
@@ -288,25 +286,27 @@ export default {
   position: absolute;
   background-color: #3b3a3a;
   color: white;
-  bottom: 100%; /* Tooltip sa zobrazí nad elementom */
-  left: 200%; /* Tooltip je centrovaný horizontálne */
+  bottom: 100%;
+  left: 200%;
   transform: translateX(-50%);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s;
   z-index: 1;
   word-break: break-all;
-  padding: 30px;
   width: 300px;
-  max-height: 300px;
-  overflow-y: auto; /* Povolenie scrollbaru pri pretečení obsahu */
-  padding: 20px;
-  font-size: 20px;
+  max-width: 300px;
+  max-height: 100px;
+  overflow-y: auto;
+  padding: 10px;
+  font-size: 14px;
   border-radius: 25px;
   box-sizing: border-box;
   text-align: center;
 }
-
+.tooltip p strong {
+  font-size: 12px;
+}
 .typing-user:hover .tooltip {
   opacity: 1;
   visibility: visible;

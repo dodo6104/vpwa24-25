@@ -17,6 +17,7 @@ export enum UserStatus {
   ONLINE = 'Online',
   OFFLINE = 'Offline',
   DND = 'DND',
+  MENTION_ONLY = 'MENTION_ONLY',
 }
 
 export default class User extends BaseModel {

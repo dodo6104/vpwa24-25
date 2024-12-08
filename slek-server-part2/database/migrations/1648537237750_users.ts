@@ -14,7 +14,7 @@ export default class UsersSchema extends BaseSchema {
       table.string('remember_me_token').nullable()
       table.string('socket_id', 255).nullable()
       table
-        .enu('status', ['Online', 'Offline', 'DND'], {
+        .enu('status', ['Online', 'Offline', 'DND','MENTION_ONLY'], {
           useNative: true,
           enumName: 'user_status', // Názov ENUM typu v PostgreSQL
         })

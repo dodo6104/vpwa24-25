@@ -504,6 +504,11 @@ Ws.namespace('/').on(
         return
       }
 
+      if (Number (targetUser.id) === Number (voterUserId)) {
+        console.error('Cannoct kick yourself:', targetUserName)
+        socket.emit('error', { message: 'Cannoct kick yourself' })
+        return
+      }
       const targetUserId = targetUser.id
       console.log('Fetched target user:', targetUserId)
 
@@ -513,7 +518,7 @@ Ws.namespace('/').on(
         .first()
 
       if (!voterIsMember) {
-        socket.emit('kick_error', {
+        socket.emit('error', {
           event: 'kick_member',
           message: 'Nie ste členom tohto kanála.',
         })
@@ -527,7 +532,7 @@ Ws.namespace('/').on(
         .first()
 
       if (existingVote) {
-        socket.emit('kick_error', {
+        socket.emit('error', {
           event: 'kick_member',
           message: 'Už ste hlasovali za vykopnutie tohto používateľa.',
         })
@@ -561,13 +566,13 @@ Ws.namespace('/').on(
           console.error(`Failed to update status for user ${targetUserName}.`)
         }
 
-        socket.broadcast.emit('member_banned', {
+        socket.broadcast.emit('succes', {
           event: 'kick_member',
           message: `Používateľ ${targetUserName} bol trvalo vykopnutý z kanála.`,
           userId: targetUserId,
         })
       } else {
-        socket.emit('kick_vote_success', {
+        socket.emit('success', {
           event: 'kick_member',
           message: `Hlas pre vykopnutie používateľa ${targetUserName} bol zaznamenaný.`,
           targetUserId,
