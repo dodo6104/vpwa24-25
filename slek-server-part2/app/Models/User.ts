@@ -30,6 +30,9 @@ export default class User extends BaseModel {
   public lastname: string
 
   @column()
+  public socketId: string | null
+
+  @column()
   public email: string
 
   @column()
@@ -102,5 +105,10 @@ export default class User extends BaseModel {
       .first()
 
     return pivotRow ? pivotRow.status : null
+  }
+  public async updateSocket(socketId: string | null, status: UserStatus): Promise<void> {
+    this.socketId = socketId
+    this.status = status
+    await this.save()
   }
 }

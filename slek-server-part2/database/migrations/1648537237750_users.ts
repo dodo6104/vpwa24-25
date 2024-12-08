@@ -12,6 +12,7 @@ export default class UsersSchema extends BaseSchema {
       table.string('nickname', 255).notNullable()
       table.string('password', 180).notNullable()
       table.string('remember_me_token').nullable()
+      table.string('socket_id', 255).nullable()
       table
         .enu('status', ['Online', 'Offline', 'DND'], {
           useNative: true,

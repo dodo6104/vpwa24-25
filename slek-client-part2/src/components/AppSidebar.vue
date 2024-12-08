@@ -182,6 +182,7 @@ export default {
         localStorage.setItem('userName', backendData.nickname)
         this.status = backendData.status
         this.statusColor = this.getStatusColor(backendData.status)
+        localStorage.setItem('status', backendData.status)
         this.channels = backendData.channels
           .filter((channel) => channel.status === 'accepted') // Filtrovanie kanálov s podmienkou "accepted"
           .map((channel) => ({
@@ -196,7 +197,7 @@ export default {
           }))
           .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
         this.channels.forEach((channel) => {
-          this.$emit('send-data', channel.id)
+          websocket.joinRoom(`channel:${channel.id}`)
         })
         const inactiveChannels = backendData.channels.filter(
           (channel) => new Date(channel.updated_at) < thirtyDaysAgo
@@ -255,6 +256,7 @@ export default {
     },
     setStatus (value) {
       this.status = value
+      localStorage.setItem('status', value)
       this.statusColor = this.getStatusColor(value)
       this.$api.put('/auth/status', { status: value }).catch((err) => {
         console.error('Chyba pri aktualizácii stavu:', err)

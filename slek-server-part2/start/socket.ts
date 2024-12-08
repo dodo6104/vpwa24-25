@@ -5,12 +5,10 @@ import User, { UserStatus } from 'App/Models/User'
 import Channel from 'App/Models/Channel'
 import ChannelUser from 'App/Models/ChannelUser'
 import { DateTime } from 'luxon'
-import { cp, stat } from 'fs'
-import ChannelUsers from 'Database/migrations/1648543188905_channel_users'
 import KickVote from 'App/Models/KickVote'
 
 Ws.namespace('/')
-  .connected(({ socket }: { socket: Socket }) => {
+  .connected(async ({ socket }: { socket: Socket }) => {
     console.log('New WebSocket connection established')
 
     // Získanie userId z handshake.auth a pripojenie k miestnosti
@@ -18,6 +16,12 @@ Ws.namespace('/')
     if (userId) {
       socket.join(`user:${userId}`)
       console.log(`User ${userId} joined room: user:${userId}`)
+
+      const user = await User.findOrFail(userId)
+
+      if (user) {
+        await user.updateSocket(socket.id, UserStatus.ONLINE)
+      }
     }
 
     console.log('Socket ID:', socket.id)
@@ -47,8 +51,14 @@ Ws.namespace('/')
     })
   })
 
-  .disconnected(({ socket }: { socket: Socket }, reason: string) => {
+  .disconnected(async ({ socket }: { socket: Socket }, reason: string) => {
     console.log('WebSocket disconnecting:', socket.id, 'Reason:', reason)
+
+    const user = await User.findBy('socket_id', socket.id)
+
+    if (user) {
+      await user.updateSocket(null, UserStatus.ONLINE)
+    }
   })
 
   .on(
@@ -115,14 +125,11 @@ Ws.namespace('/')
     async (context, data: { channelId: number; nickname: string; userId: number }) => {
       const { socket } = context
       try {
-        const { channelId, nickname, userId} = data
-        console.log(userId)
+        const { channelId, nickname, userId } = data
 
         // Find the user and channel
         const user = await User.query().where('nickname', nickname).first()
         const channel = await Channel.findOrFail(channelId)
-        console.log('channel owner id ', channel.ownerId)
-        console.log('user id ', userId)
         if (!user) {
           return socket.emit('error', { message: 'User not found' })
         }
@@ -130,6 +137,22 @@ Ws.namespace('/')
           return socket.emit('error', { message: 'You cannot invite yourself' })
         } else if (channel.ownerId !== Number(userId) && channel.isPrivate) {
           return socket.emit('error', { message: 'You are not the owner of this channel' })
+        }
+        const existingUser = await channel
+          .related('users')
+          .query()
+          .where('user_id', user.id)
+          .first()
+
+        if (String(existingUser?.$extras?.pivot_status) === 'accepted') {
+          return socket.emit('error', { message: 'User is already a member of this channel' })
+        } else if (String(existingUser?.$extras?.pivot_status) === 'invited') {
+          return socket.emit('error', { message: 'User has already been invited' })
+        } else if (
+          String(existingUser?.$extras?.pivot_status) === 'banned' &&
+          channel.ownerId !== Number(userId)
+        ) {
+          return socket.emit('error', { message: 'User has been banned from this channel' })
         }
         await channel.related('users').attach({
           [user.id]: { status: 'invited' },
@@ -152,7 +175,7 @@ Ws.namespace('/')
 
         console.log('Invitation successfully saved and broadcasted.')
 
-        socket.emit('invitation-success', { message: 'Invitation sent successfully.' })
+        socket.emit('success', { message: 'Invitation sent successfully.' })
       } catch (error) {
         console.error('Error while processing invitation:', error)
 
@@ -458,52 +481,56 @@ Ws.namespace('/').on(
   'kick_member',
   async (
     context,
-    { channelId, targetUserName, voterUserId }: { channelId: number; targetUserName: string; voterUserId: number }
+    {
+      channelId,
+      targetUserName,
+      voterUserId,
+    }: { channelId: number; targetUserName: string; voterUserId: number }
   ) => {
-    const { socket } = context;
+    const { socket } = context
 
     try {
       if (!targetUserName) {
-        console.error('Target username is undefined');
-        return;
+        console.error('Target username is undefined')
+        return
       }
-      console.log('Received inputs:', { channelId, targetUserName, voterUserId });
-      console.log('Fetching target user...');
-      const targetUser = await User.query().where('nickname', targetUserName).first();
+      console.log('Received inputs:', { channelId, targetUserName, voterUserId })
+      console.log('Fetching target user...')
+      const targetUser = await User.query().where('nickname', targetUserName).first()
 
       if (!targetUser) {
-        console.error('Target user not found:', targetUserName);
-        socket.emit('error', { message: 'Target user not found' });
-        return;
+        console.error('Target user not found:', targetUserName)
+        socket.emit('error', { message: 'Target user not found' })
+        return
       }
 
-      const targetUserId = targetUser.id;
-      console.log('Fetched target user:', targetUserId);
+      const targetUserId = targetUser.id
+      console.log('Fetched target user:', targetUserId)
 
       const voterIsMember = await ChannelUser.query()
         .where('channel_id', channelId)
         .andWhere('user_id', voterUserId)
-        .first();
+        .first()
 
       if (!voterIsMember) {
         socket.emit('kick_error', {
           event: 'kick_member',
           message: 'Nie ste členom tohto kanála.',
-        });
-        return;
+        })
+        return
       }
 
       const existingVote = await KickVote.query()
         .where('channel_id', channelId)
         .andWhere('target_user_id', targetUserId)
         .andWhere('voter_user_id', voterUserId)
-        .first();
+        .first()
 
       if (existingVote) {
         socket.emit('kick_error', {
           event: 'kick_member',
           message: 'Už ste hlasovali za vykopnutie tohto používateľa.',
-        });
+        })
         console.log('existing vote')
         return
       }
@@ -512,66 +539,68 @@ Ws.namespace('/').on(
         channelId,
         targetUserId,
         voterUserId,
-      });
+      })
 
       const voteCount = await KickVote.query()
         .where('channel_id', channelId)
         .andWhere('target_user_id', targetUserId)
-        .count('* as total');
+        .count('* as total')
 
-      const totalVotes = voteCount[0]?.$extras?.total || 0;
-      console.log(`Current vote count for user ${targetUserName}: ${totalVotes}`);
+      const totalVotes = voteCount[0]?.$extras?.total || 0
+      console.log(`Current vote count for user ${targetUserName}: ${totalVotes}`)
 
       if (totalVotes >= 3) {
         const updateStatus = await ChannelUser.query()
           .where('channel_id', channelId)
           .andWhere('user_id', targetUserId)
-          .update({ status: 'Banned' });
+          .update({ status: 'Banned' })
 
         if (updateStatus) {
-          console.log(`User ${targetUserName} status updated to 'Banned' successfully.`);
+          console.log(`User ${targetUserName} status updated to 'Banned' successfully.`)
         } else {
-          console.error(`Failed to update status for user ${targetUserName}.`);
+          console.error(`Failed to update status for user ${targetUserName}.`)
         }
 
         socket.broadcast.emit('member_banned', {
           event: 'kick_member',
           message: `Používateľ ${targetUserName} bol trvalo vykopnutý z kanála.`,
           userId: targetUserId,
-        });
+        })
       } else {
         socket.emit('kick_vote_success', {
           event: 'kick_member',
           message: `Hlas pre vykopnutie používateľa ${targetUserName} bol zaznamenaný.`,
           targetUserId,
           votes: totalVotes,
-        });
+        })
       }
     } catch (error) {
-      console.error('Chyba pri spracovaní kick_member:', error);
+      console.error('Chyba pri spracovaní kick_member:', error)
 
       socket.emit('kick_error', {
         event: 'kick_member',
         message: 'Vyskytla sa chyba pri spracovaní príkazu.',
-      });
+      })
     }
   }
-);
+)
 
 Ws.namespace('/').on(
   'list_members',
   async (context, data: { channelId: number; userId: number }) => {
-    const { channelId, userId } = data // Extract channelId and userId from the data payload
+    const { channelId, userId } = data
     const { socket } = context
-    console.log(channelId, userId)
     const users = await User.query()
       .whereIn('id', (builder) => {
-        builder.from('channel_users').select('user_id').where('channel_id', channelId)
+        builder
+          .from('channel_users')
+          .select('user_id')
+          .where('channel_id', channelId)
+          .where('status', 'accepted')
       })
-      .whereNot('id', userId) // Exclude the user with the given userId
-      .select('id', 'nickname') // Select only the fields needed
+      .whereNot('id', userId)
+      .select('id', 'nickname', 'status')
       .exec()
-    console.log('Members fetched successfully:', users)
 
     socket.emit('list_members_success', {
       event: 'list_members',
@@ -581,40 +610,43 @@ Ws.namespace('/').on(
   }
 )
 Ws.namespace('/').on(
-    'revoke-user',
-    async (context, data: {channelId: number, userId: number, username: string}) => {
-    const { channelId, userId, username } = data;
-    const { socket } = context;
+  'revoke-user',
+  async (context, data: { channelId: number; userId: number; username: string }) => {
+    const { channelId, userId, username } = data
+    const { socket } = context
 
-
-    console.log('revoke-user', channelId, userId, username)
     // Nájsť kanál
-    const channel = await Channel.findOrFail(channelId);
+    const channel = await Channel.findOrFail(channelId)
 
     if (Number(channel.ownerId) !== Number(userId)) {
       socket.emit('revoke_error', {
         success: false,
         message: 'Members  connot revoke from private channel.',
-      });
+      })
       console.log('Clenovia nemozu revoeknut')
-      return;
+      return
     }
-    const targetUser = await User.query().where('nickname', username).first();
+    const targetUser = await User.query().where('nickname', username).first()
+    if (!targetUser) {
+      socket.emit('revoke_error', {
+        success: false,
+        message: 'Target user not found.',
+      })
+      return
+    }
+
+    const room = `user:${targetUser.id}`
+    Ws.io.to(room).emit('refresh')
+
     if (Number(channel.ownerId) === Number(targetUser.id)) {
       socket.emit('revoke_error', {
         success: false,
         message: 'Owner cannot be revoked from own channel.',
-      });
-      console.log('tento')
-      return;
+      })
+      return
     }
     await channel.related('users').detach([targetUser.id])
-    const room = `user:${targetUser.id}`
-    const isOnline = Ws.io.sockets.adapter.rooms.get(room)
 
-    if (isOnline) {
-      Ws.io.to(room).emit('refresh', { event: 'refresh' })
-    }
     console.log(`User ${targetUser.id} left channel ${channelId}`)
   }
 )

@@ -58,6 +58,7 @@
           <q-input
             filled
             v-model="newPersonName"
+            @keyup.enter="submitNickname"
             label="Enter name"
             :error="nicknameError"
             :error-message="nicknameErrorMessage"
@@ -141,6 +142,12 @@ export default {
   },
   mounted () {
     websocket.connect(localStorage.getItem('userid'))
+    this.$websocket.on('refresh', () => {
+      websocket.emit('reload_channels', {
+        userId: localStorage.getItem('userid')
+      })
+      this.handleChannelSwitch(null)
+    })
     this.loadMessages().then(() => {
       websocket.on('message', (data) => {
         const visible = isAppVisible()
@@ -151,6 +158,7 @@ export default {
             ? data.content.substring(0, 10) + '...'
             : data.content
 
+          console.log('New message in channel:', data)
           const notification = {
             icon: 'announcement',
             message: `
@@ -214,6 +222,20 @@ export default {
         timeout: 3000
       })
     })
+    websocket.on('success', (data) => {
+      this.$q.notify({
+        type: 'pozitive',
+        html: true,
+        message: `
+          <div>
+            <strong style="font-size: 16px;">Error</strong><br>
+            ${data.message}
+          </div>
+        `,
+        position: 'top',
+        timeout: 3000
+      })
+    })
     websocket.on('messages_loaded', (data) => {
       if (data.success) {
         this.messages = [...data.messages, ...this.messages]
@@ -225,15 +247,16 @@ export default {
       this.listOfMembers = data.members
       let message = '' // Inicializuj prázdny string
       this.listOfMembers.forEach((member, index) => {
-        if (index > 0) message += ', ' // Ak je to druhý alebo ďalší člen, pridaj čiarku
-        message += `${member.nickname}` // Zostav reťazec
+        if (index > 0) message += ', '
+        message += `${member.nickname} (${member.status})`
       })
+      if (this.listOfMembers.length === 0) message = 'No members in the channel'
       this.$q.notify({
         message, // Odstráni posledné prázdne riadky
         color: 'primary',
         position: 'top',
-        timeout: 3000, // Predĺžené trvanie, ak je správa dlhšia
-        multiline: true // Povolenie viacriadkového zobrazenia
+        timeout: 3000,
+        multiline: true
       })
     })
     websocket.on('channel_created', (data) => {
@@ -301,11 +324,6 @@ export default {
           timeout: 3000
         })
       }
-      websocket.on('refresh', (data) => {
-        websocket.emit('reload_channels', {
-          userId: localStorage.getItem('userid')
-        })
-      })
 
       // Reload channels list
       websocket.emit('reload_channels', {
