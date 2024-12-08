@@ -11,7 +11,6 @@ Ws.namespace('/')
   .connected(async ({ socket }: { socket: Socket }) => {
     console.log('New WebSocket connection established')
 
-    // Získanie userId z handshake.auth a pripojenie k miestnosti
     const userId = socket.handshake.auth?.userId
     if (userId) {
       socket.join(`user:${userId}`)
@@ -88,7 +87,6 @@ Ws.namespace('/')
           pinnedUsers: userIds,
         })
 
-        // Načítajte súvisiace údaje o autorovi a kanáli
         await newMessage.load('author')
         await newMessage.load('channel')
 
@@ -119,7 +117,6 @@ Ws.namespace('/')
       }
     }
   )
-  // Event pre prijímanie správ
   .on(
     'invitation',
     async (context, data: { channelId: number; nickname: string; userId: number }) => {
@@ -193,7 +190,6 @@ Ws.namespace('/').on('reload_channels', async (context, data: { userId: number }
     const user = await User.findOrFail(userId)
     await user.load('channels')
 
-    // Serialize the user data with channel pivot data
     const serializedUser = {
       ...user.toJSON(),
       channels: user.channels.map((channel) => ({
@@ -215,7 +211,6 @@ Ws.namespace('/').on('reload_channels', async (context, data: { userId: number }
   } catch (error) {
     console.error('Error updating channel:', error)
 
-    // Emit an error response to the client
     socket.emit('update_channel_error', {
       message: 'Failed to update the channel',
       error: error.message,
@@ -230,17 +225,14 @@ Ws.namespace('/').on(
     try {
       const { channelId, userId } = data
 
-      // Find the ChannelUser record
       const channelUser = await ChannelUser.query()
         .where('channel_id', channelId)
         .andWhere('user_id', userId)
         .firstOrFail()
 
-      // Find the user and load their related channels
       const user = await User.findOrFail(userId)
       await user.load('channels')
 
-      // Serialize the user data with channel pivot data
       const serializedUser = {
         ...user.toJSON(),
         channels: user.channels.map((channel) => ({
@@ -251,11 +243,9 @@ Ws.namespace('/').on(
         })),
       }
 
-      // Update the updatedAt field of ChannelUser
       channelUser.updatedAt = DateTime.now()
       await channelUser.save()
 
-      // Emit the updated data back to the client
       socket.emit('update_channel_success', {
         event: 'update_channel',
         message: 'Channel updated successfully',
@@ -267,7 +257,6 @@ Ws.namespace('/').on(
     } catch (error) {
       console.error('Error updating channel:', error)
 
-      // Emit an error response to the client
       socket.emit('update_channel_error', {
         message: 'Failed to update the channel',
         error: error.message,
@@ -285,17 +274,17 @@ Ws.namespace('/').on(
       let latestMessage = lastMesgId
 
       if (lastMesgId === -1) {
-        const message = await Message.query().orderBy('created_at', 'desc').first() // Počkajte na výsledok dotazu
-        latestMessage = message ? message.id : -2 // Nastavte `null`, ak žiadne správy neexistujú
+        const message = await Message.query().orderBy('created_at', 'desc').first()
+        latestMessage = message ? message.id : -2
         latestMessage += 1
       }
       if (latestMessage === -2) {
-        return [] // Ak neexistuje najnovšia správa, vráti prázdne pole
+        return []
       }
       const messages = await Message.query()
         .where('channel_id', channelId)
-        .andWhere('id', '<', latestMessage) // Porovnávajte priamo `latestMessage`
-        .preload('author') // Načítanie autora správy (User)
+        .andWhere('id', '<', latestMessage)
+        .preload('author')
         .preload('channel')
         .orderBy('created_at', 'desc')
         .limit(30)
@@ -311,7 +300,7 @@ Ws.namespace('/').on(
           updatedAt: message.updatedAt.toISO(),
           pinnedUsers: message.pinnedUsers,
         }))
-        .reverse() // Obrátenie poradia správ
+        .reverse()
 
       socket.emit('messages_loaded', { success: true, messages: formattedMessages })
     } catch (error) {
@@ -370,7 +359,7 @@ Ws.namespace('/').on(
       })
 
       await channel.related('users').attach({
-        [userId]: { status: 'accepted' }, // Predvolený stav pre majiteľa kanála
+        [userId]: { status: 'accepted' },
       })
 
       socket.emit('channel_created', {
@@ -504,7 +493,7 @@ Ws.namespace('/').on(
         return
       }
 
-      if (Number (targetUser.id) === Number (voterUserId)) {
+      if (Number(targetUser.id) === Number(voterUserId)) {
         console.error('Cannoct kick yourself:', targetUserName)
         socket.emit('error', { message: 'Cannoct kick yourself' })
         return
@@ -620,7 +609,6 @@ Ws.namespace('/').on(
     const { channelId, userId, username } = data
     const { socket } = context
 
-    // Nájsť kanál
     const channel = await Channel.findOrFail(channelId)
 
     if (Number(channel.ownerId) !== Number(userId)) {
@@ -628,7 +616,6 @@ Ws.namespace('/').on(
         success: false,
         message: 'Members  connot revoke from private channel.',
       })
-      console.log('Clenovia nemozu revoeknut')
       return
     }
     const targetUser = await User.query().where('nickname', username).first()
@@ -655,3 +642,21 @@ Ws.namespace('/').on(
     console.log(`User ${targetUser.id} left channel ${channelId}`)
   }
 )
+
+Ws.namespace('/').on('change_status', async (context, data: { userId: number; status: string }) => {
+  const { userId, status } = data
+  const { socket } = context
+
+  const user = await User.findOrFail(userId)
+  if (!user) {
+    return
+  }
+
+  user.status = status as UserStatus
+  await user.save()
+  // if (status === 'Offline') {
+  //   socket.leaveAll()
+  // } else if (status === 'Online') {
+  //   socket.connected()
+  // }
+})

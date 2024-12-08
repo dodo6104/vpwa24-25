@@ -266,9 +266,10 @@ export default {
       this.status = value
       localStorage.setItem('status', value)
       this.statusColor = this.getStatusColor(value)
-      this.$api.put('/auth/status', { status: value }).catch((err) => {
-        console.error('Chyba pri aktualizácii stavu:', err)
-      })
+      websocket.emit('change_status', { userId: localStorage.getItem('userid'), status: this.status })
+      // this.$api.put('/auth/status', { status: value }).catch((err) => {
+      //   console.error('Chyba pri aktualizácii stavu:', err)
+      // })
       this.$refs.statusdropdown.hide()
     },
     handleAcceptInvitation (channelId) {

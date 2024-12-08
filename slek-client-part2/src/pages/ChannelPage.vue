@@ -159,11 +159,23 @@ export default {
             : data.content
 
           console.log('New message in channel:', data)
+
+          // Convert the stored `userid` from localStorage to a number
+          const currentUserId = Number(localStorage.getItem('userid'))
+
+          // Check if the currentUserId is in the pinnedUsers array
+          let message
+          if (data.pinnedUsers.includes(currentUserId)) {
+            message = `<strong>You have been pinned in ${data.channelName}</strong>
+          <br>Sent by: <em>${data.nickname}</em><br><p>Message: ${shortenedContent}</p>`
+          } else {
+            message = `<strong>New message in ${data.channelName}</strong>
+          <br>Sent by: <em>${data.nickname}</em><br><p>Message: ${shortenedContent}</p>`
+          }
+
           const notification = {
             icon: 'announcement',
-            message: `
-          <strong>New Message in ${data.channelName}</strong>
-          <br>Sent by: <em>${data.nickname}</em><br><p>Message: ${shortenedContent}</p>`,
+            message,
             position: 'top',
             timeout: 5000,
             html: true,
@@ -173,12 +185,12 @@ export default {
               this.$refs.chatWindow.scrollToBottom()
             }
           }
-
-          if (!visible) {
-            this.sendMessageNotf(data.nickname, data.channelName, data.content)
-            this.notificationQueue.push(notification)
-          } else {
-            this.$q.notify(notification)
+          if ((localStorage.getItem('status') === 'Online') || (visible && localStorage.getItem('status') === 'MENTION_ONLY' && data.pinnedUsers.includes(currentUserId))) {
+            if (!visible) {
+              this.sendMessageNotf(data.nickname, data.channelName, data.content)
+            } else if (visible) {
+              this.$q.notify(notification)
+            }
           }
         }
 
@@ -480,32 +492,35 @@ export default {
     },
     showNotification (invitation) {
       const visible = isAppVisible()
-      if (visible) {
-        this.$q.notify({
-          type: 'positive',
-          message: `You have been invited to channel: ${invitation.name}`,
-          position: 'top',
-          timeout: 3000 //
-        })
-      } else {
-        if (Notification.permission === 'granted') {
-          const notification = new Notification(`You have been invited to channel: ${invitation.name}`)
-          notification.onclick = () => {
-            console.log('Klikli ste na notifikáciu!')
-          }
-        } else {
-          Notification.requestPermission().then((permission) => {
-            if (permission === 'granted') {
-              this.sendMessageNotf()
-            } else {
-              console.log('Notifikácie boli zamietnuté.')
-            }
+      if ((localStorage.getItem('status') === 'Online')) {
+        if (visible) {
+          this.$q.notify({
+            type: 'positive',
+            message: `You have been invited to channel: ${invitation.name}`,
+            position: 'top',
+            timeout: 3000 //
           })
+        } else {
+          if (Notification.permission === 'granted') {
+            const notification = new Notification(`You have been invited to channel: ${invitation.name}`)
+            notification.onclick = () => {
+              console.log('Klikli ste na notifikáciu!')
+            }
+          } else {
+            Notification.requestPermission().then((permission) => {
+              if (permission === 'granted') {
+                this.sendMessageNotf()
+              } else {
+                console.log('Notifikácie boli zamietnuté.')
+              }
+            })
+          }
         }
       }
     }
   }
 }
+
 </script>
 
 <style scoped>

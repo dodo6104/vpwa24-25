@@ -22,11 +22,10 @@ export default class AuthController {
       return await auth.use('api').attempt(email, password)
     } catch {
       return response.unauthorized({
-        errors: [{ field: 'credentials', message: 'Invalid email or password' }]
+        errors: [{ field: 'credentials', message: 'Invalid email or password' }],
       })
     }
   }
-
 
   // eslint-disable-next-line @typescript-eslint/explicit-member-accessibility
   async logout({ auth }: HttpContextContract) {
@@ -76,7 +75,7 @@ export default class AuthController {
       const status = request.input('status') // Získanie nového statusu z requestu
 
       // Povolené hodnoty statusu
-      const allowedStatuses = ['Online', 'Offline', 'DND','MENTION_ONLY']
+      const allowedStatuses = ['Online', 'Offline', 'DND', 'MENTION_ONLY']
       if (!allowedStatuses.includes(status)) {
         return response.badRequest({ error: 'Invalid status value' })
       }
