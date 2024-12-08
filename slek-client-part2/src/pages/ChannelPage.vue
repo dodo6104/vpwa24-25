@@ -41,8 +41,7 @@
 
       <!-- Main Chat Section -->
       <div class="channel-section commandline-wrapper">
-        <ChatWindow @more-messages="loadMessages" :key="currentChannelId" :messages="messages" :myUserId="myUserId" :currentChannel="currentChannel"/>
-
+          <ChatWindow @more-messages="loadMessages" :key="currentChannelId" :messages="messages" :myUserId="myUserId" :currentChannel="currentChannel" ref="chatWindow"/>
         <!-- CommandLine Component (for sending messages) -->
         <CommandLine class="commandline" @send-message="handleSendMessage"  @typing = "handleTyping" :currentChannel = "currentChannel" :listOfMembers = "listOfMembers"/>
       </div>
@@ -163,6 +162,7 @@ export default {
             color: 'green',
             onClick: () => {
               this.openChannel(data.channelId)
+              this.$refs.chatWindow.scrollToBottom()
             }
           }
 
@@ -301,6 +301,11 @@ export default {
           timeout: 3000
         })
       }
+      websocket.on('refresh', (data) => {
+        websocket.emit('reload_channels', {
+          userId: localStorage.getItem('userid')
+        })
+      })
 
       // Reload channels list
       websocket.emit('reload_channels', {
@@ -356,6 +361,9 @@ export default {
             userId: this.myUserId,
             pinnedUsers: names
           })
+          this.$nextTick(() => {
+            this.$refs.chatWindow.scrollToBottom()
+          })
         } else {
           console.warn('No channel selected, message not sent.')
         }
@@ -377,6 +385,7 @@ export default {
           this.loadMessages()
         }
       }
+      this.$refs.chatWindow.scrollToBottom()
     },
     sendMessageNotf (nickname, channelName, message) {
       if (Notification.permission === 'granted') {

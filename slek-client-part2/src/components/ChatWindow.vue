@@ -95,10 +95,13 @@ export default {
       if (chatWindow.scrollTop === 0 && !this.fetchingOlderMessages1) {
         this.fetchingOlderMessages1 = true
         this.fetchingOlderMessages2 = true
+        const oldScrollHeight = chatWindow.scrollHeight
         const oldsize = this.messages.length
         await this.sleep(1000)
         this.$emit('more-messages', this.messages[0]?.id)
-        if (oldsize === this.messages.length) {
+        if (oldsize === this.messages.length && this.allLoaded === false) {
+          const newScrollHeight = chatWindow.scrollHeight
+          chatWindow.scrollTop = newScrollHeight - oldScrollHeight
           this.allLoaded = true
         }
         this.fetchingOlderMessages1 = false
@@ -126,8 +129,14 @@ export default {
     },
     scrollToBottom () {
       const chatWindow = this.$refs.chatWindow
-      if (chatWindow) {
-        chatWindow.scrollTop = chatWindow.scrollHeight
+      const lastMessage = chatWindow?.querySelector('.message:last-child')
+
+      if (chatWindow && lastMessage) {
+        setTimeout(() => {
+          const extraOffset = 20 // Dodatočný posun, aby správa bola viditeľná
+          chatWindow.scrollTop =
+            lastMessage.offsetTop + lastMessage.offsetHeight - chatWindow.clientHeight + extraOffset
+        }, 20)
       }
     }
   },
@@ -179,9 +188,9 @@ export default {
 }
 
 .message {
-  max-width: 60%; /* Maximálne 60% šírky */
-  margin: 5px 0; /* Vertikálny margin medzi správami */
-  padding: 8px 12px; /* Vnútorné odsadenie */
+  max-width: 60%;
+  margin: 5px 0;
+  padding: 8px 12px;
   border-radius: 10px;
   word-wrap: break-word;
   display: flex;
@@ -194,7 +203,7 @@ export default {
   align-self: flex-end;
   margin-left: auto;
   color: white;
-  text-align: right; /* Zarovnaj všetok text doprava */
+  text-align: right;
 }
 
 .message-left {
@@ -202,23 +211,23 @@ export default {
   align-self: flex-start;
   margin-right: auto;
   color: black;
-  text-align: left; /* Zarovnaj všetok text doľava */
+  text-align: left;
 }
 
 .message-left.highlighted {
-  background-color: rgb(248, 108, 108); /* Svetlo žlté pozadie */
+  background-color: rgb(248, 108, 108);
 }
 
 .nickname {
   color: black;
   font-weight: bold;
   font-size: 12px;
-  margin-bottom: 8px; /* Odsadenie medzi menom a obsahom správy */
+  margin-bottom: 8px;
 }
 
 .message-content {
   font-size: 14px;
-  line-height: 1.4; /* Zlepšená čitateľnosť */
+  line-height: 1.4;
 }
 
 /* Explicitné zarovnanie pre každú časť */

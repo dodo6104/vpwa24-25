@@ -120,15 +120,16 @@ export default {
           return false
         }
         return true
-      } else if (firstWord === '/ivite') {
+      } else if (firstWord === '/invite') {
         try {
-          const username = this.message.split(' ')[1]?.trim() || ''
-          if (username === '') {
+          let nickname = this.message.split(' ')[1]?.trim() || ''
+          if (nickname === '') {
             return false
           }
+          nickname = nickname.trim()
           websocket.emit('invitation', {
             channelId: this.currentChannel.id,
-            username,
+            nickname,
             userId: localStorage.getItem('userid')
           })
         } catch (err) {
@@ -156,7 +157,45 @@ export default {
           return false
         }
         return true
+      } else if (firstWord === '/revoke') {
+        try {
+          let username = this.message.split(' ')[1]?.trim() || ''
+          if (username === '') {
+            return false
+          }
+          username = username.trim()
+          websocket.emit('revoke-user', {
+            channelId: this.currentChannel.id,
+            username,
+            userId: localStorage.getItem('userid')
+          })
+        } catch (err) {
+          console.error('Error processing /revoke command:', err)
+          return false
+        }
+        return true
+      } else if (firstWord === '/kick') {
+        try {
+          const targetUser = this.message.split(' ')[1]?.trim() || '' // Extrahuje nickName
+          if (targetUser === '') {
+            this.displayMessage('Chýba nickName v príkaze.')
+            return false
+          }
+
+          websocket.emit('kick_member', {
+            channelId: this.currentChannel.id,
+            targetUserName: targetUser,
+            voterUserId: localStorage.getItem('userid') // ID aktuálneho používateľa
+          })
+
+          this.displayMessage(`Hlas pre vykopnutie ${targetUser} bol odoslaný.`)
+          return true
+        } catch (err) {
+          console.error('Chyba pri spracovaní /kick príkazu:', err)
+          return false
+        }
       }
+
       return false
     },
     onKeyPress (event) {

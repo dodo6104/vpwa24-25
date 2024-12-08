@@ -5,28 +5,28 @@
     side="left"
     class="drawer-bg full-height"
   >
-    <div class="column full-height background-black">
-      <!-- Invitations Section -->
-      <div v-if="invitedChannels.length > 0">
-        <q-row style="flex: 1;" class="q-pl-md q-pr-md bottom-channels">
-          <q-col class="q-pb-xl channels-top">
-            <strong class="text-font">Invitations</strong>
-          </q-col>
-        </q-row>
-        <div class="background-ligher-black q-pt-md q-ml-md q-mr-md" style="flex: 8;">
-          <q-list class="full-height">
-            <inviteItem
-              v-for="invitedChannel in invitedChannels"
-              :key="invitedChannel.id"
-              :invitedChannel="invitedChannel"
-              :selectedChannel="selectedChannel"
-              @accept-invitation="handleAcceptInvitation"
-              @decline-invitation="handleDeclineInvitation"
-              class="q-ml-md q-mr-md q-mb-sm"
-            />
-          </q-list>
-        </div>
+  <div class="column full-height background-black">
+    <!-- Invitations Section -->
+    <div v-if="invitedChannels && invitedChannels.length > 0">
+      <q-row style="flex: 1;" class="q-pl-md q-pr-md bottom-channels">
+        <q-col class="q-pb-xl channels-top">
+          <strong class="text-font">Invitations</strong>
+        </q-col>
+      </q-row>
+      <div class="background-ligher-black q-pt-md q-ml-md q-mr-md" style="flex: 8;">
+        <q-list class="full-height">
+          <inviteItem
+            v-for="invitedChannel in invitedChannels"
+            :key="invitedChannel.id"
+            :invitedChannel="invitedChannel"
+            :selectedChannel="selectedChannel"
+            @accept-invitation="handleAcceptInvitation"
+            @decline-invitation="handleDeclineInvitation"
+            class="q-ml-md q-mr-md q-mb-sm"
+          />
+        </q-list>
       </div>
+    </div>
 
       <!-- Channels Section -->
       <div class="background-ligher-black q-pt-md q-ml-md q-mr-md" style="flex: 8;">
@@ -142,6 +142,7 @@ export default {
       statusColor: 'green',
       channels: [],
       invitedChannels: [],
+      ifVisible: false,
       selectedChannel: null,
       showNewChannelForm: false,
       newChannel: {
@@ -171,6 +172,10 @@ export default {
       try {
         const response = await this.$api.get('/auth/me')
         const backendData = response.data
+        const tenMinutesAgo = new Date()
+        tenMinutesAgo.setMinutes(tenMinutesAgo.getMinutes() - 10)
+        const thirtyDaysAgo = new Date()
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
         this.userName = backendData.nickname
         this.userId = backendData.id
         localStorage.setItem('userid', backendData.id)
@@ -193,8 +198,15 @@ export default {
         this.channels.forEach((channel) => {
           this.$emit('send-data', channel.id)
         })
+        const inactiveChannels = backendData.channels.filter(
+          (channel) => new Date(channel.updated_at) < thirtyDaysAgo
+        )
+        for (const channel of inactiveChannels) {
+          this.handleDelete(channel)
+          console.log(`Kanál ${channel.name} bol odstránený, pretože nebol aktívny viac ako 30 dní.`)
+        }
         this.invitedChannels = backendData.channels
-          .filter((channel) => channel.status === 'invited') // Filtrovanie kanálov s podmienkou "accepted"
+          .filter((channel) => channel.status === 'invited')
           .map((channel) => ({
             id: channel.id,
             name: channel.name,

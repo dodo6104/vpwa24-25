@@ -14,7 +14,7 @@ export default class ChannelUser extends BaseModel {
   public channelId: number
 
   @column()
-  public status: 'invited' | 'accepted'
+  public status: 'invited' | 'accepted' | 'Banned' | 'left'
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

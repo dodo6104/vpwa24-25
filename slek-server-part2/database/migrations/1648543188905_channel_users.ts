@@ -24,7 +24,7 @@ export default class ChannelUsers extends BaseSchema {
 
       // New status column
       table
-        .enum('status', ['invited', 'accepted'])
+        .enum('status', ['invited', 'accepted','Banned','left'])
         .notNullable()
         .defaultTo('invited')
         .comment('Status of the user in the channel')
